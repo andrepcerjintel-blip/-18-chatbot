@@ -1,0 +1,8 @@
+# Dependencias opcionais, instaladas somente se o provider correspondente
+# for usado. Nunca instaladas automaticamente pelo start.bat.
+
+# LLM_PROVIDER=anthropic
+anthropic>=0.34,<1.0
+
+# Fase 2+ (dependente de GPU/CUDA conhecidos - NAO instalar as cegas)
+# torch==<definir apos auditoria de hardware>

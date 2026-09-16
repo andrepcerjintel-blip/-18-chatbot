@@ -1,0 +1,302 @@
+2026-09-16 20:51:41 | INFO | companion_app | startup app_env=development host=127.0.0.1 port=8000
+2026-09-16 20:51:41 | INFO | companion_app | database ready url=sqlite:///./data/app.db
+2026-09-16 20:51:43 | INFO | companion_app | provider_status media_provider=null
+2026-09-16 20:51:43 | INFO | companion_app | provider_status llm_provider=stub
+2026-09-16 20:51:52 | INFO | companion_app | character_created id=a5521254-80dd-474f-aa12-4d0d473de890 name=Luna age=24
+2026-09-16 20:51:52 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:51:52 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:51:52 | INFO | companion_app | safety_decision decision=BLOCK reasons=['MINOR', 'OTHER']
+2026-09-16 20:51:52 | WARNING | companion_app | unsafe_request_blocked conversation_id=53f8de93-c1ff-49fe-bd90-bfa961372d44 reasons=['MINOR', 'OTHER']
+2026-09-16 20:51:52 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:51:52 | INFO | companion_app | media_job type=image status=MEDIA_PROVIDER_NOT_CONFIGURED conversation_id=53f8de93-c1ff-49fe-bd90-bfa961372d44
+2026-09-16 20:51:52 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:52:55 | INFO | companion_app | startup app_env=development host=127.0.0.1 port=8000
+2026-09-16 20:52:55 | INFO | companion_app | database ready url=sqlite:///:memory:
+2026-09-16 20:52:55 | INFO | companion_app | provider_status media_provider=null
+2026-09-16 20:52:55 | INFO | companion_app | provider_status llm_provider=stub
+2026-09-16 20:52:55 | INFO | companion_app | shutdown
+2026-09-16 20:52:55 | INFO | companion_app | startup app_env=development host=127.0.0.1 port=8000
+2026-09-16 20:52:55 | INFO | companion_app | database ready url=sqlite:///:memory:
+2026-09-16 20:52:55 | INFO | companion_app | character_created id=3a154838-81fd-4552-81e6-bf294d021810 name=Luna age=24
+2026-09-16 20:52:55 | INFO | companion_app | shutdown
+2026-09-16 20:52:55 | INFO | companion_app | startup app_env=development host=127.0.0.1 port=8000
+2026-09-16 20:52:55 | INFO | companion_app | database ready url=sqlite:///:memory:
+2026-09-16 20:52:55 | INFO | companion_app | shutdown
+2026-09-16 20:52:55 | INFO | companion_app | startup app_env=development host=127.0.0.1 port=8000
+2026-09-16 20:52:55 | INFO | companion_app | database ready url=sqlite:///:memory:
+2026-09-16 20:52:55 | INFO | companion_app | character_created id=9228eddf-8e62-48a8-adc7-56df2875422a name=Luna age=24
+2026-09-16 20:52:55 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:52:55 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:52:55 | INFO | companion_app | shutdown
+2026-09-16 20:52:55 | INFO | companion_app | startup app_env=development host=127.0.0.1 port=8000
+2026-09-16 20:52:55 | INFO | companion_app | database ready url=sqlite:///:memory:
+2026-09-16 20:52:55 | INFO | companion_app | character_created id=1361bc00-6709-4068-b0e5-0b5eb03b60e1 name=Luna age=24
+2026-09-16 20:52:55 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:52:55 | INFO | companion_app | media_job type=image status=MEDIA_PROVIDER_NOT_CONFIGURED conversation_id=f4906ca1-d8f7-461b-a387-c2b88ab52f4d
+2026-09-16 20:52:55 | INFO | companion_app | shutdown
+2026-09-16 20:52:55 | INFO | companion_app | character_created id=a1399f46-edf7-4a61-bf5c-3fbdd1f89bef name=Luna age=24
+2026-09-16 20:52:55 | INFO | companion_app | character_created id=89d42b10-5698-4448-b33e-6be47ea26965 name=Luna age=24
+2026-09-16 20:52:55 | INFO | companion_app | character_created id=8b8d1f8a-9fa1-45d9-bf6b-6ce6cef81dc0 name=Luna age=24
+2026-09-16 20:52:55 | INFO | companion_app | character_created id=afa2098c-451b-45d3-b150-9ac3bfc2fd80 name=Luna age=24
+2026-09-16 20:52:55 | WARNING | companion_app | protected_field_update_blocked character_id=afa2098c-451b-45d3-b150-9ac3bfc2fd80 field=age
+2026-09-16 20:52:55 | INFO | companion_app | character_created id=842c9e4a-c86d-40ac-a009-75baff24c158 name=Luna age=24
+2026-09-16 20:52:55 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:52:55 | INFO | companion_app | media_job type=image status=MEDIA_PROVIDER_NOT_CONFIGURED conversation_id=841b62b1-ecfa-4ac8-ad68-e27b869e39b0
+2026-09-16 20:52:55 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:52:55 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:52:55 | INFO | companion_app | character_created id=659e1a84-6ea3-4959-ac14-939576210bae name=Luna age=24
+2026-09-16 20:52:55 | INFO | companion_app | safety_decision decision=BLOCK reasons=['MINOR']
+2026-09-16 20:52:55 | WARNING | companion_app | unsafe_request_blocked conversation_id=ee50a950-f3fc-4ef2-9c18-74cada8a25f5 reasons=['MINOR']
+2026-09-16 20:52:55 | INFO | companion_app | safety_decision decision=BLOCK reasons=['MINOR']
+2026-09-16 20:52:55 | INFO | companion_app | safety_decision decision=BLOCK reasons=['REAL_PERSON']
+2026-09-16 20:52:55 | INFO | companion_app | safety_decision decision=BLOCK reasons=['CELEBRITY']
+2026-09-16 20:52:55 | INFO | companion_app | safety_decision decision=BLOCK reasons=['NONCONSENSUAL']
+2026-09-16 20:52:55 | INFO | companion_app | safety_decision decision=BLOCK reasons=['INCEST']
+2026-09-16 20:52:55 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:52:55 | ERROR | companion_app | safety_engine_pre_check_exception
+Traceback (most recent call last):
+  File "/home/user/-18-chatbot/backend/app/safety/engine.py", line 31, in pre_generation_check
+    reasons = evaluate_rules(text)
+              ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/unittest/mock.py", line 1124, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/unittest/mock.py", line 1128, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/unittest/mock.py", line 1183, in _execute_mock_call
+    raise effect
+RuntimeError: boom
+2026-09-16 20:52:55 | ERROR | companion_app | safety_engine_invalid_decision decision=UNKNOWN_STATE
+2026-09-16 20:52:55 | INFO | companion_app | safety_decision decision=BLOCK reasons=['MINOR']
+2026-09-16 20:52:55 | INFO | companion_app | character_created id=8c97c233-bb5f-4a3f-8acf-fa7ab83d632a name=Luna age=24
+2026-09-16 20:52:55 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:52:55 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:52:55 | INFO | companion_app | character_created id=a6697fe2-9da3-4b9b-8d3d-4faa3a63b2d1 name=Luna age=24
+2026-09-16 20:52:55 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:52:55 | INFO | companion_app | character_created id=5e136845-7b5b-4a06-a900-4441b123bc47 name=Luna age=24
+2026-09-16 20:52:55 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:52:55 | INFO | companion_app | character_created id=798296b3-aafc-4885-8657-a4605e210fe9 name=Luna age=24
+2026-09-16 20:52:55 | INFO | companion_app | safety_decision decision=BLOCK reasons=['MINOR', 'OTHER']
+2026-09-16 20:52:55 | WARNING | companion_app | unsafe_request_blocked conversation_id=579da072-26dc-45d3-9677-dbfea79dbe21 reasons=['MINOR', 'OTHER']
+2026-09-16 20:53:08 | INFO | companion_app | startup app_env=development host=127.0.0.1 port=8000
+2026-09-16 20:53:08 | INFO | companion_app | database ready url=sqlite:///:memory:
+2026-09-16 20:53:08 | INFO | companion_app | provider_status media_provider=null
+2026-09-16 20:53:08 | INFO | companion_app | provider_status llm_provider=stub
+2026-09-16 20:53:08 | INFO | companion_app | shutdown
+2026-09-16 20:53:08 | INFO | companion_app | startup app_env=development host=127.0.0.1 port=8000
+2026-09-16 20:53:08 | INFO | companion_app | database ready url=sqlite:///:memory:
+2026-09-16 20:53:08 | INFO | companion_app | character_created id=0a58b0f0-a536-465c-9a4b-99e0008c7e11 name=Luna age=24
+2026-09-16 20:53:08 | INFO | companion_app | shutdown
+2026-09-16 20:53:08 | INFO | companion_app | startup app_env=development host=127.0.0.1 port=8000
+2026-09-16 20:53:08 | INFO | companion_app | database ready url=sqlite:///:memory:
+2026-09-16 20:53:08 | INFO | companion_app | shutdown
+2026-09-16 20:53:08 | INFO | companion_app | startup app_env=development host=127.0.0.1 port=8000
+2026-09-16 20:53:08 | INFO | companion_app | database ready url=sqlite:///:memory:
+2026-09-16 20:53:08 | INFO | companion_app | character_created id=f29decd7-3acd-4ecf-bb74-9483ac903f3f name=Luna age=24
+2026-09-16 20:53:08 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:53:08 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:53:08 | INFO | companion_app | shutdown
+2026-09-16 20:53:08 | INFO | companion_app | startup app_env=development host=127.0.0.1 port=8000
+2026-09-16 20:53:08 | INFO | companion_app | database ready url=sqlite:///:memory:
+2026-09-16 20:53:08 | INFO | companion_app | character_created id=73833458-7f3c-4fae-ac41-444eb09ae5f4 name=Luna age=24
+2026-09-16 20:53:08 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:53:08 | INFO | companion_app | media_job type=image status=MEDIA_PROVIDER_NOT_CONFIGURED conversation_id=26932fbf-458f-447e-baa5-126e1a78f683
+2026-09-16 20:53:08 | INFO | companion_app | shutdown
+2026-09-16 20:53:08 | INFO | companion_app | character_created id=618af8c7-2697-4a1f-9f11-674b6b94ef10 name=Luna age=24
+2026-09-16 20:53:08 | INFO | companion_app | character_created id=3709b7c6-d5d6-478c-8e21-fc5fad408410 name=Luna age=24
+2026-09-16 20:53:09 | INFO | companion_app | character_created id=8ca7f2c4-1cfa-4796-a9ec-a1241077b907 name=Luna age=24
+2026-09-16 20:53:09 | INFO | companion_app | character_created id=1aac39ee-ee95-4349-9cb3-b3dd40b6a8e8 name=Luna age=24
+2026-09-16 20:53:09 | WARNING | companion_app | protected_field_update_blocked character_id=1aac39ee-ee95-4349-9cb3-b3dd40b6a8e8 field=age
+2026-09-16 20:53:09 | INFO | companion_app | character_created id=3545fd75-5521-424e-8719-1604c6e372c6 name=Luna age=24
+2026-09-16 20:53:09 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:53:09 | INFO | companion_app | media_job type=image status=MEDIA_PROVIDER_NOT_CONFIGURED conversation_id=54ff9f16-5d02-4fbf-9920-decec73fd070
+2026-09-16 20:53:09 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:53:09 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:53:09 | INFO | companion_app | character_created id=8e4b2975-ba44-4a40-986f-dd22fcac5e43 name=Luna age=24
+2026-09-16 20:53:09 | INFO | companion_app | safety_decision decision=BLOCK reasons=['MINOR']
+2026-09-16 20:53:09 | WARNING | companion_app | unsafe_request_blocked conversation_id=c4718822-5843-4d16-b791-ddc3416d343b reasons=['MINOR']
+2026-09-16 20:53:09 | INFO | companion_app | safety_decision decision=BLOCK reasons=['MINOR']
+2026-09-16 20:53:09 | INFO | companion_app | safety_decision decision=BLOCK reasons=['REAL_PERSON']
+2026-09-16 20:53:09 | INFO | companion_app | safety_decision decision=BLOCK reasons=['CELEBRITY']
+2026-09-16 20:53:09 | INFO | companion_app | safety_decision decision=BLOCK reasons=['NONCONSENSUAL']
+2026-09-16 20:53:09 | INFO | companion_app | safety_decision decision=BLOCK reasons=['INCEST']
+2026-09-16 20:53:09 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:53:09 | ERROR | companion_app | safety_engine_pre_check_exception
+Traceback (most recent call last):
+  File "/home/user/-18-chatbot/backend/app/safety/engine.py", line 31, in pre_generation_check
+    reasons = evaluate_rules(text)
+              ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/unittest/mock.py", line 1124, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/unittest/mock.py", line 1128, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/unittest/mock.py", line 1183, in _execute_mock_call
+    raise effect
+RuntimeError: boom
+2026-09-16 20:53:09 | ERROR | companion_app | safety_engine_invalid_decision decision=UNKNOWN_STATE
+2026-09-16 20:53:09 | INFO | companion_app | safety_decision decision=BLOCK reasons=['MINOR']
+2026-09-16 20:53:09 | INFO | companion_app | character_created id=82400f41-96b1-45bd-9aab-bda0b2c8f5e3 name=Luna age=24
+2026-09-16 20:53:09 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:53:09 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:53:09 | INFO | companion_app | character_created id=503c66e5-423d-4dd3-bc85-8aa229387594 name=Luna age=24
+2026-09-16 20:53:09 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:53:09 | INFO | companion_app | character_created id=ca79db0c-31fa-4034-8028-302d055d2375 name=Luna age=24
+2026-09-16 20:53:09 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:53:09 | INFO | companion_app | character_created id=eb19df56-ff6a-48cd-96ae-dbff9efce813 name=Luna age=24
+2026-09-16 20:53:09 | INFO | companion_app | safety_decision decision=BLOCK reasons=['MINOR', 'OTHER']
+2026-09-16 20:53:09 | WARNING | companion_app | unsafe_request_blocked conversation_id=541a287b-bdf7-4821-b703-ca6d1650b4c4 reasons=['MINOR', 'OTHER']
+2026-09-16 20:53:40 | INFO | companion_app | startup app_env=development host=127.0.0.1 port=8000
+2026-09-16 20:53:40 | INFO | companion_app | database ready url=sqlite:///:memory:
+2026-09-16 20:53:40 | INFO | companion_app | provider_status media_provider=null
+2026-09-16 20:53:40 | INFO | companion_app | provider_status llm_provider=stub
+2026-09-16 20:53:40 | INFO | companion_app | shutdown
+2026-09-16 20:53:40 | INFO | companion_app | startup app_env=development host=127.0.0.1 port=8000
+2026-09-16 20:53:40 | INFO | companion_app | database ready url=sqlite:///:memory:
+2026-09-16 20:53:40 | INFO | companion_app | character_created id=c4b18903-dbcc-4b29-8d75-abd07b525297 name=Luna age=24
+2026-09-16 20:53:40 | INFO | companion_app | shutdown
+2026-09-16 20:53:40 | INFO | companion_app | startup app_env=development host=127.0.0.1 port=8000
+2026-09-16 20:53:40 | INFO | companion_app | database ready url=sqlite:///:memory:
+2026-09-16 20:53:40 | INFO | companion_app | shutdown
+2026-09-16 20:53:40 | INFO | companion_app | startup app_env=development host=127.0.0.1 port=8000
+2026-09-16 20:53:40 | INFO | companion_app | database ready url=sqlite:///:memory:
+2026-09-16 20:53:40 | INFO | companion_app | character_created id=a5651a52-9b09-4e9b-835f-6c6c2fa06b24 name=Luna age=24
+2026-09-16 20:53:40 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:53:40 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:53:40 | INFO | companion_app | shutdown
+2026-09-16 20:53:40 | INFO | companion_app | startup app_env=development host=127.0.0.1 port=8000
+2026-09-16 20:53:40 | INFO | companion_app | database ready url=sqlite:///:memory:
+2026-09-16 20:53:40 | INFO | companion_app | character_created id=bed14540-1796-4ea5-bc4e-d56ad7ceb1d6 name=Luna age=24
+2026-09-16 20:53:40 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:53:40 | INFO | companion_app | media_job type=image status=MEDIA_PROVIDER_NOT_CONFIGURED conversation_id=b9f28319-fdcd-446d-b74f-2484f373f66b
+2026-09-16 20:53:40 | INFO | companion_app | shutdown
+2026-09-16 20:53:40 | INFO | companion_app | character_created id=24132d8d-c941-4e90-a0f6-0e9baf982cc9 name=Luna age=24
+2026-09-16 20:53:40 | INFO | companion_app | character_created id=922aa67d-e86d-4957-aee4-08e2e8b5ffe7 name=Luna age=24
+2026-09-16 20:53:40 | INFO | companion_app | character_created id=3bce6578-e2ec-4c0e-9218-0e078d29cd5c name=Luna age=24
+2026-09-16 20:53:40 | INFO | companion_app | character_created id=a59b0e64-26db-41c7-82a5-7bcae1cc8271 name=Luna age=24
+2026-09-16 20:53:40 | WARNING | companion_app | protected_field_update_blocked character_id=a59b0e64-26db-41c7-82a5-7bcae1cc8271 field=age
+2026-09-16 20:53:40 | INFO | companion_app | character_created id=011b03d2-92a4-4e29-9e5a-dc9610880722 name=Luna age=24
+2026-09-16 20:53:40 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:53:40 | INFO | companion_app | media_job type=image status=MEDIA_PROVIDER_NOT_CONFIGURED conversation_id=3e33b529-587a-413b-ba96-145117b7ba93
+2026-09-16 20:53:40 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:53:40 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:53:40 | INFO | companion_app | character_created id=5a363717-6a37-439a-9a0c-974dac5d8634 name=Luna age=24
+2026-09-16 20:53:40 | INFO | companion_app | safety_decision decision=BLOCK reasons=['MINOR']
+2026-09-16 20:53:40 | WARNING | companion_app | unsafe_request_blocked conversation_id=dc3dd159-6f6c-44e0-a699-595b9df3a7d7 reasons=['MINOR']
+2026-09-16 20:53:40 | INFO | companion_app | safety_decision decision=BLOCK reasons=['MINOR']
+2026-09-16 20:53:40 | INFO | companion_app | safety_decision decision=BLOCK reasons=['REAL_PERSON']
+2026-09-16 20:53:40 | INFO | companion_app | safety_decision decision=BLOCK reasons=['CELEBRITY']
+2026-09-16 20:53:40 | INFO | companion_app | safety_decision decision=BLOCK reasons=['NONCONSENSUAL']
+2026-09-16 20:53:40 | INFO | companion_app | safety_decision decision=BLOCK reasons=['INCEST']
+2026-09-16 20:53:40 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:53:40 | ERROR | companion_app | safety_engine_pre_check_exception
+Traceback (most recent call last):
+  File "/home/user/-18-chatbot/backend/app/safety/engine.py", line 31, in pre_generation_check
+    reasons = evaluate_rules(text)
+              ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/unittest/mock.py", line 1124, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/unittest/mock.py", line 1128, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/unittest/mock.py", line 1183, in _execute_mock_call
+    raise effect
+RuntimeError: boom
+2026-09-16 20:53:40 | ERROR | companion_app | safety_engine_invalid_decision decision=UNKNOWN_STATE
+2026-09-16 20:53:40 | INFO | companion_app | safety_decision decision=BLOCK reasons=['MINOR']
+2026-09-16 20:53:40 | INFO | companion_app | character_created id=e3c53af4-4212-4a1c-a185-01bde24d33ec name=Luna age=24
+2026-09-16 20:53:40 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:53:40 | INFO | companion_app | character_created id=cc383790-1dad-47ef-b935-b3f5dc796a04 name=Luna age=24
+2026-09-16 20:53:40 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:53:40 | INFO | companion_app | character_created id=91dda2c1-1675-4a11-862d-815043782b41 name=Luna age=24
+2026-09-16 20:53:40 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:53:41 | INFO | companion_app | character_created id=f5854ba9-cad1-449f-b907-43f86e04b50d name=Luna age=24
+2026-09-16 20:53:41 | INFO | companion_app | safety_decision decision=BLOCK reasons=['MINOR', 'OTHER']
+2026-09-16 20:53:41 | WARNING | companion_app | unsafe_request_blocked conversation_id=edec9d5a-c2f2-487e-a2cc-ce232fc55fce reasons=['MINOR', 'OTHER']
+2026-09-16 20:55:07 | INFO | companion_app | startup app_env=development host=127.0.0.1 port=8000
+2026-09-16 20:55:07 | INFO | companion_app | database ready url=sqlite:///./data/app.db
+2026-09-16 20:55:07 | INFO | companion_app | shutdown
+2026-09-16 20:55:25 | INFO | companion_app | shutdown
+2026-09-16 20:55:26 | INFO | companion_app | startup app_env=development host=127.0.0.1 port=8000
+2026-09-16 20:55:26 | INFO | companion_app | database ready url=sqlite:///./data/app.db
+2026-09-16 20:55:27 | INFO | companion_app | provider_status media_provider=null
+2026-09-16 20:55:27 | INFO | companion_app | provider_status llm_provider=stub
+2026-09-16 20:56:02 | INFO | companion_app | character_created id=f4b90286-0742-42fc-9b7a-427039a3608b name=Luna age=24
+2026-09-16 20:56:04 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:56:04 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:56:05 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:56:05 | INFO | companion_app | media_job type=image status=MEDIA_PROVIDER_NOT_CONFIGURED conversation_id=ee90c143-ae39-45ea-a750-302924ba5cd2
+2026-09-16 20:56:06 | INFO | companion_app | safety_decision decision=BLOCK reasons=['MINOR', 'OTHER']
+2026-09-16 20:56:06 | WARNING | companion_app | unsafe_request_blocked conversation_id=ee90c143-ae39-45ea-a750-302924ba5cd2 reasons=['MINOR', 'OTHER']
+2026-09-16 20:56:17 | INFO | companion_app | shutdown
+2026-09-16 20:57:37 | INFO | companion_app | startup app_env=development host=127.0.0.1 port=8000
+2026-09-16 20:57:37 | INFO | companion_app | database ready url=sqlite:///:memory:
+2026-09-16 20:57:37 | INFO | companion_app | provider_status media_provider=null
+2026-09-16 20:57:37 | INFO | companion_app | provider_status llm_provider=stub
+2026-09-16 20:57:37 | INFO | companion_app | shutdown
+2026-09-16 20:57:37 | INFO | companion_app | startup app_env=development host=127.0.0.1 port=8000
+2026-09-16 20:57:37 | INFO | companion_app | database ready url=sqlite:///:memory:
+2026-09-16 20:57:37 | INFO | companion_app | character_created id=b56420cf-49f4-43eb-abf8-820f389c275f name=Luna age=24
+2026-09-16 20:57:37 | INFO | companion_app | shutdown
+2026-09-16 20:57:37 | INFO | companion_app | startup app_env=development host=127.0.0.1 port=8000
+2026-09-16 20:57:37 | INFO | companion_app | database ready url=sqlite:///:memory:
+2026-09-16 20:57:37 | INFO | companion_app | shutdown
+2026-09-16 20:57:37 | INFO | companion_app | startup app_env=development host=127.0.0.1 port=8000
+2026-09-16 20:57:37 | INFO | companion_app | database ready url=sqlite:///:memory:
+2026-09-16 20:57:37 | INFO | companion_app | character_created id=d0ca23cb-b868-45b7-8a22-041fe6cf979b name=Luna age=24
+2026-09-16 20:57:37 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:57:37 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:57:37 | INFO | companion_app | shutdown
+2026-09-16 20:57:37 | INFO | companion_app | startup app_env=development host=127.0.0.1 port=8000
+2026-09-16 20:57:37 | INFO | companion_app | database ready url=sqlite:///:memory:
+2026-09-16 20:57:37 | INFO | companion_app | character_created id=1d4e7019-465f-4ca2-a0bc-d8f5cff6ffcf name=Luna age=24
+2026-09-16 20:57:37 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:57:37 | INFO | companion_app | media_job type=image status=MEDIA_PROVIDER_NOT_CONFIGURED conversation_id=df19ec16-da54-4662-9e9c-2f085189ae55
+2026-09-16 20:57:37 | INFO | companion_app | shutdown
+2026-09-16 20:57:37 | INFO | companion_app | character_created id=57ceaec1-4bfa-4853-b8e4-1108fe47f638 name=Luna age=24
+2026-09-16 20:57:37 | INFO | companion_app | character_created id=62908994-a640-4e95-990d-b7a96e89751a name=Luna age=24
+2026-09-16 20:57:37 | INFO | companion_app | character_created id=23fa4cd9-acb0-43bf-a061-2e14e9d99c89 name=Luna age=24
+2026-09-16 20:57:37 | INFO | companion_app | character_created id=fbb0e2c9-9fee-4726-995c-bd129da5f93c name=Luna age=24
+2026-09-16 20:57:37 | WARNING | companion_app | protected_field_update_blocked character_id=fbb0e2c9-9fee-4726-995c-bd129da5f93c field=age
+2026-09-16 20:57:37 | INFO | companion_app | character_created id=dbc7cf93-3224-437f-8154-3233688bfdb8 name=Luna age=24
+2026-09-16 20:57:37 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:57:37 | INFO | companion_app | media_job type=image status=MEDIA_PROVIDER_NOT_CONFIGURED conversation_id=42bf2755-6039-4402-80bb-291fe6605841
+2026-09-16 20:57:37 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:57:37 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:57:37 | INFO | companion_app | character_created id=d2f975f5-a09c-466c-8ba9-8f7f4a5c0889 name=Luna age=24
+2026-09-16 20:57:37 | INFO | companion_app | safety_decision decision=BLOCK reasons=['MINOR']
+2026-09-16 20:57:37 | WARNING | companion_app | unsafe_request_blocked conversation_id=6692fe09-9fc1-4322-b362-2742472a937b reasons=['MINOR']
+2026-09-16 20:57:37 | INFO | companion_app | safety_decision decision=BLOCK reasons=['MINOR']
+2026-09-16 20:57:37 | INFO | companion_app | safety_decision decision=BLOCK reasons=['REAL_PERSON']
+2026-09-16 20:57:37 | INFO | companion_app | safety_decision decision=BLOCK reasons=['CELEBRITY']
+2026-09-16 20:57:37 | INFO | companion_app | safety_decision decision=BLOCK reasons=['NONCONSENSUAL']
+2026-09-16 20:57:37 | INFO | companion_app | safety_decision decision=BLOCK reasons=['INCEST']
+2026-09-16 20:57:37 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:57:37 | ERROR | companion_app | safety_engine_pre_check_exception
+Traceback (most recent call last):
+  File "/home/user/-18-chatbot/backend/app/safety/engine.py", line 31, in pre_generation_check
+    reasons = evaluate_rules(text)
+              ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/unittest/mock.py", line 1124, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/unittest/mock.py", line 1128, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/unittest/mock.py", line 1183, in _execute_mock_call
+    raise effect
+RuntimeError: boom
+2026-09-16 20:57:37 | ERROR | companion_app | safety_engine_invalid_decision decision=UNKNOWN_STATE
+2026-09-16 20:57:37 | INFO | companion_app | safety_decision decision=BLOCK reasons=['MINOR']
+2026-09-16 20:57:37 | INFO | companion_app | character_created id=25484450-671b-409c-9bc3-0da46f1e5e11 name=Luna age=24
+2026-09-16 20:57:37 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:57:37 | INFO | companion_app | character_created id=0ae0bfef-804e-4e59-99db-15058edefb36 name=Luna age=24
+2026-09-16 20:57:37 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:57:37 | INFO | companion_app | character_created id=d38bc1d0-34e8-455c-bd70-a1e313e4c0a9 name=Luna age=24
+2026-09-16 20:57:37 | INFO | companion_app | safety_decision decision=ALLOW reasons=[]
+2026-09-16 20:57:37 | INFO | companion_app | character_created id=3130befb-9504-49f7-8937-2536b1ab63f6 name=Luna age=24
+2026-09-16 20:57:37 | INFO | companion_app | safety_decision decision=BLOCK reasons=['MINOR', 'OTHER']
+2026-09-16 20:57:37 | WARNING | companion_app | unsafe_request_blocked conversation_id=dd95b3f6-f8a1-441a-8e35-de39f5aedf19 reasons=['MINOR', 'OTHER']
