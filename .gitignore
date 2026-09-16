@@ -27,8 +27,12 @@ generated/*
 !generated/.gitkeep
 logs/*
 !logs/.gitkeep
+backend/logs/
 models/*
 !models/.gitkeep
+
+# Build artifacts
+frontend/tsconfig.tsbuildinfo
 
 # OS
 .DS_Store
