@@ -21,15 +21,32 @@ no Windows.
   em modo stub/configurável.
 - ✅ `HardwareProfile` desacoplado de vendor (NVIDIA/AMD/Intel/CPU) — veja
   [HARDWARE.md](HARDWARE.md).
-- ⏳ Geração visual real: depende de hardware (GPU vendor/VRAM/backend) ainda
-  **desconhecido**.
+- ✅ Hardware real da máquina alvo já auditado (NVIDIA RTX 3050 Laptop,
+  4 GB VRAM) — geração visual real ainda **não habilitada**: aguarda
+  implementação do `ComfyUIProvider` com as restrições de baixa VRAM
+  documentadas em [HARDWARE.md](HARDWARE.md) (Fase 2).
 
 ## Requisitos
 
 - Windows 10/11
-- Python 3.11+
+- **Python 3.11.x especificamente** (não a versão mais recente do
+  sistema) — instale lado a lado sem remover outras versões; veja
+  `scripts/setup_windows_env.ps1`
 - Node.js 18+ e npm
 - Git
+
+Se Python 3.11, Git ou Node.js ainda não estiverem instalados, rode
+primeiro:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\setup_windows_env.ps1
+```
+
+Esse script instala apenas essas três ferramentas de desenvolvimento
+(via winget, quando disponível, ou orienta o download oficial), cria o
+virtualenv do projeto com Python 3.11 e instala as dependências do
+backend. Ele **nunca** remove ou substitui um Python já existente
+(ex.: Python 3.14), nunca instala drivers de GPU ou CUDA Toolkit.
 
 ## Instalação e execução (Windows)
 
@@ -41,12 +58,16 @@ cd companion-app
 :: 2. Copiar variáveis de ambiente
 copy .env.example .env
 
-:: 3. Executar o script de inicialização
+:: 3. (uma vez) Configurar Python 3.11 + Git + Node, se ausentes
+powershell -ExecutionPolicy Bypass -File scripts\setup_windows_env.ps1
+
+:: 4. Executar o script de inicialização
 scripts\start.bat
 ```
 
 O `start.bat`:
-1. cria/ativa o virtualenv Python do backend;
+1. cria/ativa o virtualenv Python do backend (Python 3.11 especificamente,
+   via `py -3.11`; falha com instruções claras se não encontrado);
 2. instala dependências (se necessário);
 3. inicia o backend em `http://127.0.0.1:8000`;
 4. instala dependências do frontend (se necessário);

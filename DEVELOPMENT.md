@@ -27,7 +27,8 @@ frontend/                  # React + Vite
 tests/                      # Testes automatizados (pytest)
 scripts/
   audit_env.py             # Auditoria de ambiente (somente leitura)
-  start.bat                # Inicialização no Windows
+  setup_windows_env.ps1    # Python 3.11 lado a lado + Git/Node (1x, Windows)
+  start.bat                # Inicialização no Windows (usa Python 3.11)
 workflows/                  # Workflows ComfyUI (Fase 2+)
 models/                     # Checkpoints visuais (Fase 2+, fora do git)
 generated/                  # Mídia gerada (fora do git)
@@ -36,9 +37,15 @@ logs/                        # Logs da aplicação (fora do git)
 
 ## Rodando localmente (dev)
 
+> Este projeto usa **Python 3.11.x** especificamente (não a versão mais
+> recente instalada no sistema). No Windows, rode
+> `scripts\setup_windows_env.ps1` uma vez para instalar 3.11 lado a lado
+> sem afetar outras versões, e crie o virtualenv com `py -3.11`, não
+> `python`/`python3` genérico.
+
 ```bash
 cd backend
-python3 -m venv .venv && source .venv/bin/activate
+python3.11 -m venv .venv && source .venv/bin/activate   # Windows: py -3.11 -m venv .venv
 pip install -r requirements.txt
 cp ../.env.example ../.env
 PYTHONPATH=. uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
@@ -95,5 +102,12 @@ banco de desenvolvimento.
 - Nenhum módulo fora de `app/hardware` deve verificar diretamente
   `torch.cuda`, nome de GPU ou variáveis CUDA-específicas — sempre
   consumir `app.hardware.get_hardware_profile()`.
+- A GPU alvo conhecida tem apenas 4 GB de VRAM: qualquer implementação
+  futura em `app/media/comfyui_provider.py` deve respeitar as restrições
+  vinculantes documentadas em [HARDWARE.md](HARDWARE.md) (`batch_size=1`,
+  FP16, offload, um pipeline pesado residente por vez, tratamento de
+  `CUDA OUT OF MEMORY`) — nunca presumir VRAM abundante.
+- Nunca instalar CUDA Toolkit global neste projeto; apenas o wheel do
+  PyTorch com runtime CUDA embutido, dentro do virtualenv.
 - Migrações: nesta fase, `init_db()` usa `create_all`. Se o schema
   evoluir de forma incompatível, considerar Alembic.

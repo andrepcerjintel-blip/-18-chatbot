@@ -4,5 +4,16 @@
 # LLM_PROVIDER=anthropic
 anthropic>=0.34,<1.0
 
-# Fase 2+ (dependente de GPU/CUDA conhecidos - NAO instalar as cegas)
-# torch==<definir apos auditoria de hardware>
+# Fase 2+ (geracao visual via ComfyUIProvider) -- NAO instalar as cegas.
+#
+# Hardware alvo confirmado: NVIDIA RTX 3050 Laptop, 4 GB VRAM, driver
+# 581.83 (compat. maxima "CUDA 13.0" reportada pelo driver). Isso NAO
+# significa instalar CUDA Toolkit 13.0 -- o runtime CUDA vem embutido no
+# wheel do PyTorch. No momento de habilitar esta dependencia:
+#   1. conferir a build CUDA atualmente recomendada em
+#      https://pytorch.org/get-started/locally/ (ex.: cu121/cu124/cu126 --
+#      verificar a vigente, nao assumir uma fixa aqui);
+#   2. instalar com --index-url apontando para essa build, dentro do
+#      virtualenv do projeto (backend/.venv), nunca no Python de sistema;
+#   3. validar com torch.cuda.is_available() antes de prosseguir.
+# torch==<definir na Fase 2, apos consultar a doc oficial>

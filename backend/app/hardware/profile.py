@@ -41,6 +41,11 @@ class HardwareProfile(BaseModel):
     vram_gb: str = UNKNOWN
     backend: str = UNKNOWN
     driver_version: str = UNKNOWN
+    # Populado a partir de CUDA_VERSION no .env. Enquanto nenhum PyTorch
+    # com CUDA estiver instalado no venv, isto reflete a compatibilidade
+    # MAXIMA reportada pelo driver (saida de `nvidia-smi`), NAO a versao
+    # de runtime CUDA efetivamente em uso -- essas sao coisas diferentes e
+    # nao podem ser tratadas como equivalentes ao decidir builds/parametros.
     runtime_version: str = UNKNOWN
     supports_fp16: bool = False
     supports_bf16: bool = False

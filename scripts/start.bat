@@ -14,10 +14,19 @@ set ROOT=%~dp0..
 set BACKEND=%ROOT%\backend
 set FRONTEND=%ROOT%\frontend
 
-echo [1/6] Verificando ambiente virtual Python...
+echo [1/6] Verificando ambiente virtual Python (3.11.x especificamente)...
 if not exist "%BACKEND%\.venv\Scripts\activate.bat" (
-    echo Ambiente virtual nao encontrado. Criando...
-    python -m venv "%BACKEND%\.venv"
+    echo Ambiente virtual nao encontrado. Criando com Python 3.11...
+    py -3.11 -m venv "%BACKEND%\.venv"
+    if errorlevel 1 (
+        echo.
+        echo [ERRO] Python 3.11 nao encontrado via "py -3.11".
+        echo Este projeto exige especificamente Python 3.11.x ^(nao usa a versao
+        echo padrao do sistema, seja qual for^). Rode primeiro:
+        echo     powershell -ExecutionPolicy Bypass -File scripts\setup_windows_env.ps1
+        echo para instalar o Python 3.11 lado a lado, sem remover outras versoes.
+        exit /b 1
+    )
     call "%BACKEND%\.venv\Scripts\activate.bat"
     pip install -r "%BACKEND%\requirements.txt"
 ) else (
