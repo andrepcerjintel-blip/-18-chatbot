@@ -84,3 +84,33 @@ def test_hardware_endpoint(client):
     body = resp.json()
     assert "vendor" in body
     assert "backend" in body
+
+
+def test_create_character_rejects_youthful_appearance_despite_adult_age(client):
+    """Idade declarada adulta (25) nao basta: a aparencia descrita e
+    verificada de forma independente e bloqueia a criacao."""
+    resp = client.post(
+        "/characters",
+        json={
+            "name": "Teste",
+            "age": 25,
+            "gender": "female",
+            "body_description": "corpo pré-púbere, rosto infantil",
+        },
+    )
+    assert resp.status_code == 422
+    body = resp.json()
+    assert body["detail"]["status"] == "UNSAFE_REQUEST"
+    assert "YOUTHFUL_APPEARANCE" in body["detail"]["reasons"]
+
+
+def test_update_character_rejects_injected_youthful_appearance(client):
+    resp = client.post("/characters", json={"name": "Luna", "age": 30, "gender": "female"})
+    character_id = resp.json()["id"]
+
+    patch_resp = client.patch(
+        f"/characters/{character_id}",
+        json={"distinctive_features": "corpo infantil, sem desenvolvimento corporal"},
+    )
+    assert patch_resp.status_code == 422
+    assert patch_resp.json()["detail"]["status"] == "UNSAFE_REQUEST"

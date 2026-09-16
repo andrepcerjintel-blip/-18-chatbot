@@ -46,7 +46,7 @@ ChatResponse (schema Pydantic)  ──▶  Chat UI
 | `app.database` | Engine/Session SQLAlchemy, `init_db()`. |
 | `app.models` | ORM (Character, PersonalityProfile, Conversation, CharacterState, Message, MediaAsset). |
 | `app.schemas` | Contratos Pydantic (validação de entrada/saída, nunca texto livre executável). |
-| `app.character.manager` | Único ponto de escrita de `Character`; reforça invariantes protegidas (idade, `synthetic`, `identity_origin`, `real_person_reference`, gênero obrigatório). |
+| `app.character.manager` | Único ponto de escrita de `Character`; reforça invariantes protegidas (idade ≥ 21, `synthetic`, `identity_origin`, `real_person_reference`, gênero obrigatório) e chama `SafetyEngine.check_character_definition()` — idade e aparência descrita são validadas de forma independente, tanto na criação quanto em qualquer atualização de campos de aparência. |
 | `app.personality` | Presets de personalidade neutros em gênero (`SHY`, `MODEST`, ... `BOLD`) + tradução de rótulo por gênero na apresentação. |
 | `app.safety` | Safety Engine + regras deterministicas; fail-closed. |
 | `app.intent.classifier` | Classificação de intenção baseada em regras. |

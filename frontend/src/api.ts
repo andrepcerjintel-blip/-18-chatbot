@@ -111,6 +111,24 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   });
   if (!res.ok) {
     const body = await res.text();
+    // O backend pode retornar detail como string (erro simples) ou como
+    // objeto estruturado {status, message, reasons} para bloqueios de
+    // segurança (ex.: UNSAFE_REQUEST na criação/edição de personagem).
+    let parsed: { detail?: unknown } | null = null;
+    try {
+      parsed = JSON.parse(body);
+    } catch {
+      parsed = null;
+    }
+    const detail = parsed?.detail;
+    if (detail && typeof detail === "object" && "message" in (detail as Record<string, unknown>)) {
+      const d = detail as { message: string; reasons?: unknown };
+      const reasons = Array.isArray(d.reasons) ? ` (${d.reasons.join(", ")})` : "";
+      throw new Error(`${d.message}${reasons}`);
+    }
+    if (typeof detail === "string") {
+      throw new Error(detail);
+    }
     throw new Error(`${res.status}: ${body}`);
   }
   return res.json() as Promise<T>;

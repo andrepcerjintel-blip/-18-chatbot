@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import re
 
+from app.models.character import MIN_CHARACTER_AGE
 from app.schemas.safety import SafetyReason
 
 # --- Minoridade / idade ---------------------------------------------------
@@ -21,10 +22,37 @@ _MINOR_KEYWORDS = [
     "ensino fundamental", "loli", "shota", "child", "minor", "underage",
     "kid", "toddler", "pre-adolescente", "puberdade",
 ]
+# Palavras-chave de APARENCIA usadas tanto em texto de conversa quanto na
+# ficha do personagem (appearance/body_description/distinctive_features).
+# Detectadas INDEPENDENTEMENTE da idade declarada: uma idade textual >= 21
+# nao autoriza, por si so, uma aparencia infantil/adolescente/juvenil --
+# essa e uma checagem adicional e deliberadamente conservadora, nao
+# substituivel por "ela tem X anos".
 _YOUTHFUL_APPEARANCE_KEYWORDS = [
     "parece crianca", "parece criança", "aparencia jovem demais",
-    "rosto infantil", "corpo de crianca", "corpo de criança",
-    "looks like a child", "childlike", "aparenta ser menor",
+    "aparência jovem demais", "rosto infantil", "corpo de crianca",
+    "corpo de criança", "looks like a child", "childlike", "child-like",
+    "aparenta ser menor", "aparenta ser mais nova", "aparenta ser mais novo",
+    "parece ter menos de", "aparencia de adolescente", "aparência de adolescente",
+    "aparencia adolescente", "aparência adolescente", "corpo pre-pubere",
+    "corpo pré-púbere", "corpo prepubere", "sem desenvolvimento corporal",
+    "sem curvas de adulto", "peito plano de crianca", "peito plano de criança",
+    "rosto de bebe", "rosto de bebê", "altura de crianca", "altura de criança",
+    "uniforme escolar infantil", "vestimenta infantil", "corpo infantil",
+    "traços infantis", "tracos infantis", "feicoes infantis", "feições infantis",
+    "flat chest", "prepubescent", "pre-pubescent", "baby face", "babyface",
+    "no adult body development", "school uniform child", "petite like a child",
+    "barely legal", "mal fez 18", "acabou de fazer 18", "recem completou 18",
+    "recém completou 18",
+]
+# Variante em regex das mesmas frases-chave acima, tolerando palavras
+# intermediarias (ex.: "aparenta ser BEM mais nova"), para nao depender de
+# correspondencia exata de substring nesses casos mais comuns de tentativa
+# de contornar a checagem de aparencia com qualificadores.
+_YOUTHFUL_APPEARANCE_PATTERNS = [
+    re.compile(r"aparenta\s+ser\s+(\w+\s+){0,3}(mais\s+nov[ao]|menor)", re.IGNORECASE),
+    re.compile(r"parece\s+(\w+\s+){0,3}(mais\s+nov[ao]|uma?\s+crian[çc]a)", re.IGNORECASE),
+    re.compile(r"looks?\s+(\w+\s+){0,3}younger", re.IGNORECASE),
 ]
 
 # --- Pessoas reais / celebridades -----------------------------------------
@@ -118,17 +146,19 @@ def evaluate_rules(raw_text: str) -> list[SafetyReason]:
     text = raw_text.lower().strip()
     reasons: list[SafetyReason] = []
 
-    # Idade explicita abaixo do minimo (21) mencionada no texto.
+    # Idade explicita abaixo do minimo (MIN_CHARACTER_AGE) mencionada no texto.
     for match in _MINOR_AGE_PATTERN.finditer(text):
         num = match.group(1) or match.group(2)
-        if num and num.isdigit() and int(num) < 21:
+        if num and num.isdigit() and int(num) < MIN_CHARACTER_AGE:
             reasons.append(SafetyReason.MINOR)
             break
 
     if _contains_any(text, _MINOR_KEYWORDS):
         reasons.append(SafetyReason.MINOR)
 
-    if _contains_any(text, _YOUTHFUL_APPEARANCE_KEYWORDS):
+    if _contains_any(text, _YOUTHFUL_APPEARANCE_KEYWORDS) or any(
+        p.search(text) for p in _YOUTHFUL_APPEARANCE_PATTERNS
+    ):
         reasons.append(SafetyReason.YOUTHFUL_APPEARANCE)
 
     if _contains_any(text, _FACE_REFERENCE_KEYWORDS):

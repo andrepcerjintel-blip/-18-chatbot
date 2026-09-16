@@ -3,6 +3,9 @@
 Unico ponto de escrita para a entidade Character/PersonalityProfile.
 Garante as invariantes:
   - age >= MIN_CHARACTER_AGE (21)
+  - aparencia descrita nunca pode sugerir menoridade/juventude, INDEPENDENTE
+    da idade declarada (uma idade adulta nao autoriza, por si so, uma
+    aparencia infantil/adolescente -- ver SafetyEngine.check_character_definition)
   - synthetic == True sempre
   - identity_origin == "synthetic_generation" sempre
   - real_person_reference sempre vazio/nulo
@@ -22,22 +25,61 @@ from app.logging_config import logger
 from app.models.character import DEFAULT_IDENTITY_ORIGIN, MIN_CHARACTER_AGE, Character
 from app.models.personality import PersonalityProfile
 from app.personality.presets import PERSONALITY_FIELD_NAMES, PERSONALITY_PRESETS
+from app.safety.engine import SafetyEngine
 from app.schemas.character import CharacterCreate, CharacterUpdate
+from app.schemas.safety import SafetyResult
+
+_APPEARANCE_FIELDS = (
+    "appearance",
+    "hair",
+    "eyes",
+    "skin",
+    "height",
+    "body_description",
+    "distinctive_features",
+)
 
 
 class ProtectedFieldError(Exception):
     """Levantado quando uma tentativa de alterar um campo protegido ocorre."""
 
 
+class UnsafeCharacterError(Exception):
+    """Levantado quando a ficha do personagem (idade e/ou aparencia
+    descrita) e reprovada pelo Safety Engine. Idade adulta declarada NAO
+    e suficiente por si so -- ver SafetyEngine.check_character_definition."""
+
+    def __init__(self, result: SafetyResult):
+        self.result = result
+        super().__init__(f"unsafe character definition: {[r.value for r in result.reasons]}")
+
+
+def _appearance_text(**fields: str) -> str:
+    return " ".join(v for v in fields.values() if v)
+
+
 class CharacterManager:
     def __init__(self, db: Session):
         self.db = db
+        self.safety_engine = SafetyEngine()
 
     def create(self, payload: CharacterCreate) -> Character:
         if payload.age < MIN_CHARACTER_AGE:
             # Defesa em profundidade: o schema ja bloqueia isso, mas
             # nunca confiamos em uma unica camada de validacao.
             raise ValueError(f"age must be >= {MIN_CHARACTER_AGE}")
+
+        appearance_text = _appearance_text(**{f: getattr(payload, f) for f in _APPEARANCE_FIELDS})
+        safety_result = self.safety_engine.check_character_definition(
+            age=payload.age, appearance_text=appearance_text
+        )
+        if safety_result.blocked:
+            logger.warning(
+                "unsafe_character_creation_blocked name=%s reasons=%s",
+                payload.name,
+                [r.value for r in safety_result.reasons],
+            )
+            raise UnsafeCharacterError(safety_result)
 
         character = Character(
             name=payload.name,
@@ -97,6 +139,19 @@ class CharacterManager:
             if field in Character.PROTECTED_FIELDS:
                 logger.warning("protected_field_update_blocked character_id=%s field=%s", character_id, field)
                 raise ProtectedFieldError(f"field '{field}' is protected and cannot be modified")
+
+        if any(f in updates for f in _APPEARANCE_FIELDS):
+            merged = {f: updates.get(f, getattr(character, f)) for f in _APPEARANCE_FIELDS}
+            safety_result = self.safety_engine.check_character_definition(
+                age=character.age, appearance_text=_appearance_text(**merged)
+            )
+            if safety_result.blocked:
+                logger.warning(
+                    "unsafe_character_update_blocked character_id=%s reasons=%s",
+                    character_id,
+                    [r.value for r in safety_result.reasons],
+                )
+                raise UnsafeCharacterError(safety_result)
 
         for field, value in updates.items():
             if value is not None:

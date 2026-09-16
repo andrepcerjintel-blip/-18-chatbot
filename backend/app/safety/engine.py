@@ -11,6 +11,7 @@ manipulado por prompt injection nao pode ser a unica linha de defesa.
 from __future__ import annotations
 
 from app.logging_config import logger
+from app.models.character import MIN_CHARACTER_AGE
 from app.safety.rules import evaluate_rules
 from app.schemas.safety import SafetyDecision, SafetyReason, SafetyResult
 
@@ -62,6 +63,38 @@ class SafetyEngine:
         except Exception:
             logger.exception("safety_engine_post_check_exception")
             return _fail_closed("exception during post_generation_check")
+
+    def check_character_definition(self, *, age: int, appearance_text: str) -> SafetyResult:
+        """Validacao da FICHA do personagem (idade declarada + aparencia
+        descrita), executada na criacao e em qualquer atualizacao que
+        toque campos de aparencia.
+
+        Idade declarada e aparencia sao verificadas de forma INDEPENDENTE:
+        uma idade >= MIN_CHARACTER_AGE nunca, por si so, autoriza uma
+        aparencia infantil/adolescente/juvenil -- se qualquer um dos dois
+        sinais for desqualificante, o resultado e BLOCK. Isso cobre
+        explicitamente a tentativa de usar idade declarada para contornar
+        uma aparencia juvenil (ex.: "21 anos, aparenta ser bem mais nova").
+        """
+        try:
+            reasons: list[SafetyReason] = []
+            if age is None or age < MIN_CHARACTER_AGE:
+                reasons.append(SafetyReason.MINOR)
+            if appearance_text:
+                reasons.extend(evaluate_rules(appearance_text))
+
+            seen: set[SafetyReason] = set()
+            unique_reasons = [r for r in reasons if not (r in seen or seen.add(r))]
+
+            result = SafetyResult(
+                decision=SafetyDecision.BLOCK if unique_reasons else SafetyDecision.ALLOW,
+                reasons=unique_reasons,
+                detail="rule-based character definition check (age + appearance, independently evaluated)",
+            )
+            return self._validate_or_fail_closed(result)
+        except Exception:
+            logger.exception("safety_engine_character_definition_check_exception")
+            return _fail_closed("exception during check_character_definition")
 
     @staticmethod
     def _validate_or_fail_closed(result: SafetyResult) -> SafetyResult:

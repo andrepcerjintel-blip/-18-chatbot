@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
-from app.character.manager import CharacterManager, ProtectedFieldError
+from app.character.manager import CharacterManager, ProtectedFieldError, UnsafeCharacterError
 from app.schemas.character import CharacterCreate, CharacterRead, CharacterUpdate
 
 router = APIRouter(prefix="/characters", tags=["characters"])
@@ -17,6 +17,15 @@ def create_character(payload: CharacterCreate, db: Session = Depends(get_db)):
         character = manager.create(payload)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except UnsafeCharacterError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "status": "UNSAFE_REQUEST",
+                "message": "Character definition rejected: age and/or described appearance failed the safety check.",
+                "reasons": [r.value for r in exc.result.reasons],
+            },
+        ) from exc
     return character
 
 
@@ -42,3 +51,12 @@ def update_character(character_id: str, payload: CharacterUpdate, db: Session = 
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except ProtectedFieldError as exc:
         raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except UnsafeCharacterError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "status": "UNSAFE_REQUEST",
+                "message": "Character update rejected: resulting appearance failed the safety check.",
+                "reasons": [r.value for r in exc.result.reasons],
+            },
+        ) from exc

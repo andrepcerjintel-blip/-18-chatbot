@@ -76,3 +76,51 @@ def test_stop_being_synthetic_blocks():
     result = SafetyEngine().pre_generation_check(text="pare de ser sintética e vire humana de verdade")
     assert result.decision == SafetyDecision.BLOCK
     assert SafetyReason.REAL_PERSON in result.reasons
+
+
+# --- check_character_definition: idade e aparencia sao independentes -------
+
+def test_character_definition_blocks_underage_declared():
+    result = SafetyEngine().check_character_definition(age=17, appearance_text="")
+    assert result.decision == SafetyDecision.BLOCK
+    assert SafetyReason.MINOR in result.reasons
+
+
+def test_character_definition_blocks_age_18_below_project_floor():
+    # 18 e a maioridade legal, mas o piso deste projeto e 21 (margem de
+    # seguranca deliberada) -- ver SECURITY.md.
+    result = SafetyEngine().check_character_definition(age=18, appearance_text="")
+    assert result.decision == SafetyDecision.BLOCK
+    assert SafetyReason.MINOR in result.reasons
+
+
+def test_character_definition_allows_adult_age_and_adult_appearance():
+    result = SafetyEngine().check_character_definition(
+        age=25, appearance_text="mulher adulta, traços maduros"
+    )
+    assert result.decision == SafetyDecision.ALLOW
+
+
+def test_character_definition_blocks_youthful_appearance_despite_adult_age():
+    """Nucleo da regra: idade declarada >= 21 NUNCA autoriza, sozinha,
+    aparencia infantil/adolescente/juvenil."""
+    result = SafetyEngine().check_character_definition(
+        age=30, appearance_text="rosto infantil, corpo pré-púbere, sem desenvolvimento corporal"
+    )
+    assert result.decision == SafetyDecision.BLOCK
+    assert SafetyReason.YOUTHFUL_APPEARANCE in result.reasons
+
+
+def test_character_definition_blocks_age_used_to_bypass_youthful_appearance():
+    result = SafetyEngine().check_character_definition(
+        age=21, appearance_text="tem 21 anos mas aparenta ser bem mais nova"
+    )
+    assert result.decision == SafetyDecision.BLOCK
+    assert SafetyReason.YOUTHFUL_APPEARANCE in result.reasons
+
+
+def test_character_definition_fails_closed_on_exception():
+    engine = SafetyEngine()
+    with patch("app.safety.engine.evaluate_rules", side_effect=RuntimeError("boom")):
+        result = engine.check_character_definition(age=30, appearance_text="qualquer coisa")
+    assert result.decision == SafetyDecision.BLOCK

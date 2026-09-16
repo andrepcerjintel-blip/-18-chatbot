@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from app.character.manager import CharacterManager, ProtectedFieldError
+from app.character.manager import CharacterManager, ProtectedFieldError, UnsafeCharacterError
+from app.models.character import MIN_CHARACTER_AGE
 from app.schemas.character import CharacterCreate, CharacterUpdate
 
 
@@ -91,3 +92,64 @@ def test_identity_origin_and_real_person_reference_are_protected(db_session):
 
     with pytest.raises(ProtectedFieldError):
         manager.update(character.id, FakeUpdate())
+
+
+def test_minimum_age_is_21_not_18(db_session):
+    """O piso de idade permanece 21, deliberadamente acima do minimo legal
+    de 18: uma margem de seguranca contra personagens "18 anos" com
+    aparencia ambigua. Ver SECURITY.md."""
+    assert MIN_CHARACTER_AGE == 21
+
+    with pytest.raises(Exception):
+        _valid_payload(age=18)
+    with pytest.raises(Exception):
+        _valid_payload(age=20)
+
+    manager = CharacterManager(db_session)
+    character = manager.create(_valid_payload(age=21))
+    assert character.age == 21
+
+
+def test_youthful_appearance_blocked_even_with_adult_age(db_session):
+    """Idade declarada >= 21 NAO autoriza, por si so, uma aparencia
+    infantil/adolescente -- o Safety Engine verifica isso de forma
+    independente da idade."""
+    manager = CharacterManager(db_session)
+    payload = _valid_payload(
+        age=25,
+        body_description="corpo pré-púbere, sem desenvolvimento corporal",
+        distinctive_features="rosto infantil",
+    )
+    with pytest.raises(UnsafeCharacterError):
+        manager.create(payload)
+
+
+def test_declared_age_cannot_bypass_youthful_appearance_description(db_session):
+    """Cobre explicitamente a tentativa de usar idade declarada para
+    contornar uma aparencia juvenil descrita em texto livre."""
+    manager = CharacterManager(db_session)
+    payload = _valid_payload(
+        age=22,
+        appearance="aparenta ser bem mais nova do que realmente é, apesar da idade",
+    )
+    with pytest.raises(UnsafeCharacterError):
+        manager.create(payload)
+
+
+def test_adult_appearance_with_adult_age_is_allowed(db_session):
+    manager = CharacterManager(db_session)
+    character = manager.create(
+        _valid_payload(age=28, appearance="mulher adulta, traços maduros, altura 1.75m")
+    )
+    assert character.age == 28
+
+
+def test_update_cannot_inject_youthful_appearance(db_session):
+    manager = CharacterManager(db_session)
+    character = manager.create(_valid_payload(age=30))
+
+    with pytest.raises(UnsafeCharacterError):
+        manager.update(
+            character.id,
+            CharacterUpdate(body_description="corpo infantil, rosto de bebê"),
+        )

@@ -6,10 +6,27 @@ em múltiplas camadas independentes (defesa em profundidade).
 
 ## 1. Personagens
 
-- `Character.age >= 21` sempre. Reforçado em:
+- `Character.age >= 21` sempre. **Este piso é deliberadamente mais alto
+  que os 18 anos de maioridade legal** — é uma margem de segurança contra
+  a categoria de risco "personagem sexualizado alegando ser recém-maior
+  de idade", conhecida por ser usada para tentar justificar aparência
+  juvenil em conteúdo adulto. `age < 21` bloqueia; `age >= 21` é
+  necessário mas **não suficiente** (ver "Idade vs. aparência" abaixo).
+  Reforçado em:
   - `CharacterCreate` (Pydantic, `Field(ge=21)`);
   - `CharacterManager.create` (checagem explícita, defesa em profundidade);
   - `CHECK CONSTRAINT` no banco (SQLite).
+- **Idade vs. aparência — verificadas de forma independente.** Uma idade
+  declarada `>= 21` **nunca**, por si só, autoriza uma aparência
+  infantil/adolescente/juvenil. `SafetyEngine.check_character_definition()`
+  avalia `age` e o texto combinado de aparência
+  (`appearance`/`hair`/`eyes`/`skin`/`height`/`body_description`/
+  `distinctive_features`) **separadamente**; qualquer um dos dois sinais
+  desqualificantes resulta em `BLOCK`. Isso cobre explicitamente a
+  tentativa de usar idade declarada para contornar uma aparência juvenil
+  (ex.: "tem 21 anos mas aparenta ser bem mais nova"). Chamado por
+  `CharacterManager.create()` e por `CharacterManager.update()` sempre
+  que um campo de aparência é alterado — nunca só na criação.
 - `Character.synthetic == True` sempre; nunca aceito como entrada do
   cliente (não existe em `CharacterCreate`/`CharacterUpdate`).
 - `Character.identity_origin == "synthetic_generation"` sempre — nunca
@@ -37,9 +54,10 @@ em múltiplas camadas independentes (defesa em profundidade).
 
 ## 2. Safety Engine (fail-closed)
 
-- `app.safety.engine.SafetyEngine` expõe `pre_generation_check()` e
-  `post_generation_check()`, chamados **sempre**, independentemente do
-  provider de LLM ou de mídia configurado.
+- `app.safety.engine.SafetyEngine` expõe `pre_generation_check()`,
+  `post_generation_check()` e `check_character_definition()` (idade +
+  aparência da ficha do personagem), chamados **sempre**,
+  independentemente do provider de LLM ou de mídia configurado.
 - As regras de detecção (`app.safety.rules`) são **deterministicas**
   (regex/palavras-chave), não dependem de nenhuma chamada de rede ou de
   LLM. Isso garante que a segurança funcione mesmo se o LLM configurado
