@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { PERSONALITY_PRESETS, presetDisplayLabel } from "../personality";
 
-const PRESETS = ["timida", "pudica", "recatada", "romantica", "despojada", "provocadora", "atirada"];
+type Gender = "male" | "female" | "";
 
 interface Props {
   onClose: () => void;
@@ -10,8 +11,10 @@ interface Props {
 export default function CharacterCreateModal({ onClose, onCreate }: Props) {
   const [name, setName] = useState("");
   const [age, setAge] = useState(24);
-  const [gender, setGender] = useState("feminino");
-  const [preset, setPreset] = useState("romantica");
+  // Propositalmente SEM valor inicial: o sistema nunca deve presumir um
+  // genero (ex.: feminino) por padrao. O usuário precisa escolher.
+  const [gender, setGender] = useState<Gender>("");
+  const [preset, setPreset] = useState<string>("ROMANTIC");
   const [appearance, setAppearance] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -21,6 +24,10 @@ export default function CharacterCreateModal({ onClose, onCreate }: Props) {
     setError(null);
     if (age < 21) {
       setError("A idade mínima permitida é 21 anos.");
+      return;
+    }
+    if (gender !== "male" && gender !== "female") {
+      setError("Selecione o gênero do personagem (masculino ou feminino).");
       return;
     }
     setSubmitting(true);
@@ -43,7 +50,7 @@ export default function CharacterCreateModal({ onClose, onCreate }: Props) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <h3>Nova personagem sintética</h3>
+        <h3>Novo personagem sintético</h3>
         <form onSubmit={handleSubmit}>
           <label>
             Nome
@@ -61,7 +68,13 @@ export default function CharacterCreateModal({ onClose, onCreate }: Props) {
           </label>
           <label>
             Gênero
-            <input value={gender} onChange={(e) => setGender(e.target.value)} required />
+            <select value={gender} onChange={(e) => setGender(e.target.value as Gender)} required>
+              <option value="" disabled>
+                Selecione...
+              </option>
+              <option value="male">Masculino</option>
+              <option value="female">Feminino</option>
+            </select>
           </label>
           <label>
             Aparência
@@ -70,9 +83,9 @@ export default function CharacterCreateModal({ onClose, onCreate }: Props) {
           <label>
             Personalidade (preset inicial)
             <select value={preset} onChange={(e) => setPreset(e.target.value)}>
-              {PRESETS.map((p) => (
+              {PERSONALITY_PRESETS.map((p) => (
                 <option key={p} value={p}>
-                  {p}
+                  {presetDisplayLabel(p, gender || "neutral")}
                 </option>
               ))}
             </select>

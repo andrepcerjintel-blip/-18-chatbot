@@ -4,7 +4,10 @@ Unico ponto de escrita para a entidade Character/PersonalityProfile.
 Garante as invariantes:
   - age >= MIN_CHARACTER_AGE (21)
   - synthetic == True sempre
+  - identity_origin == "synthetic_generation" sempre
+  - real_person_reference sempre vazio/nulo
   - id / created_at imutaveis
+  - gender e obrigatorio (nunca presumido) e restrito a valores suportados
   - campos protegidos nunca aceitam alteracao vinda de texto de conversa
 
 O Conversation Engine NUNCA deve tocar diretamente no ORM de Character;
@@ -15,10 +18,10 @@ from __future__ import annotations
 
 from sqlalchemy.orm import Session
 
-from app.character.presets import PERSONALITY_PRESETS
 from app.logging_config import logger
-from app.models.character import MIN_CHARACTER_AGE, Character
+from app.models.character import DEFAULT_IDENTITY_ORIGIN, MIN_CHARACTER_AGE, Character
 from app.models.personality import PersonalityProfile
+from app.personality.presets import PERSONALITY_FIELD_NAMES, PERSONALITY_PRESETS
 from app.schemas.character import CharacterCreate, CharacterUpdate
 
 
@@ -49,24 +52,15 @@ class CharacterManager:
             body_description=payload.body_description,
             distinctive_features=payload.distinctive_features,
             visual_identity_reference=payload.visual_identity_reference,
+            # Protegidos: sempre controlados pelo servidor, nunca pelo cliente.
+            identity_origin=DEFAULT_IDENTITY_ORIGIN,
+            real_person_reference=None,
         )
         self.db.add(character)
         self.db.flush()
 
-        params = dict.fromkeys(
-            (
-                "shyness",
-                "extroversion",
-                "initiative",
-                "romanticism",
-                "sexual_openness",
-                "playfulness",
-                "assertiveness",
-                "affection",
-            ),
-            50,
-        )
-        preset_name = "custom"
+        params = dict.fromkeys(PERSONALITY_FIELD_NAMES, 50)
+        preset_name = "CUSTOM"
         if payload.personality_preset is not None:
             preset_name = payload.personality_preset.value
             preset_values = PERSONALITY_PRESETS.get(preset_name)

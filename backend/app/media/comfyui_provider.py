@@ -2,16 +2,20 @@
 
 Nesta fase, NAO escolhemos checkpoint, resolucao, batch size, precisao,
 quantizacao, offloading ou attention backend -- essas decisoes dependem do
-hardware real (GPU/VRAM/CUDA), que ainda e UNKNOWN. Este provider apenas:
+HardwareProfile real (vendor/VRAM/backend), que ainda e UNKNOWN. Este
+provider apenas:
 
   1. sabe conversar com um ComfyUI local via HTTP (health check);
   2. reporta de forma honesta que a geracao efetiva ainda nao esta
      disponivel, via MEDIA_PROVIDER_NOT_CONFIGURED, em vez de fingir sucesso
      ou lancar excecao.
 
-Quando o hardware for conhecido (Secao 22 do briefing), a geracao real
-(workflow loader, fila de jobs, parametros de VRAM) sera implementada aqui
-sem alterar a interface ImageProvider nem o restante da aplicacao.
+Quando o HardwareProfile for conhecido (app.hardware.get_hardware_profile),
+a geracao real (workflow loader, fila de jobs, parametros de VRAM,
+selecao de backend CUDA/ROCm/XPU/CPU) sera implementada aqui sem alterar a
+interface ImageProvider nem o restante da aplicacao. Este modulo nunca
+deve presumir CUDA/NVIDIA -- qualquer decisao de backend deve consultar o
+HardwareProfile, nunca checar `torch.cuda` ou similar diretamente aqui.
 """
 from __future__ import annotations
 
@@ -19,6 +23,7 @@ import urllib.error
 import urllib.request
 
 from app.config import get_settings
+from app.hardware.profile import get_hardware_profile
 from app.logging_config import logger
 from app.media.provider_base import ImageProvider
 from app.schemas.media import ImageRequest, ImageResult, MediaStatus, ProviderHealth
@@ -27,15 +32,25 @@ from app.schemas.media import ImageRequest, ImageResult, MediaStatus, ProviderHe
 class ComfyUIProvider(ImageProvider):
     def __init__(self) -> None:
         self.settings = get_settings()
+        self.hardware = get_hardware_profile()
 
     def generate_image(self, request: ImageRequest) -> ImageResult:
         try:
+            if not self.hardware.is_known:
+                return ImageResult(
+                    status=MediaStatus.MEDIA_PROVIDER_NOT_CONFIGURED,
+                    message=(
+                        "ComfyUI provider is set, but the hardware profile (GPU vendor/VRAM/backend) "
+                        "is still UNKNOWN. Run scripts/audit_env.py on the target machine and update .env."
+                    ),
+                    metadata={},
+                )
             if not self.settings.image_model_path:
                 return ImageResult(
                     status=MediaStatus.MEDIA_PROVIDER_NOT_CONFIGURED,
                     message=(
                         "ComfyUI provider is set, but no visual checkpoint (IMAGE_MODEL_PATH) "
-                        "has been configured yet. This depends on the real GPU/VRAM being known."
+                        "has been configured yet."
                     ),
                     metadata={},
                 )

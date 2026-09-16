@@ -35,6 +35,18 @@ _REAL_PERSON_KEYWORDS = [
     "pessoa real", "foto real dela", "foto real dele", "essa pessoa da foto",
     "my girlfriend", "my wife", "my ex", "real person", "real photo of her",
 ]
+# Tentativas de fazer o PROPRIO personagem afirmar ser uma pessoa real (ou
+# deixar de ser sintetico) -- ataque direto ao campo protegido `synthetic`
+# e `identity_origin`.
+_SELF_REAL_PERSON_KEYWORDS = [
+    "voce e uma pessoa real", "você é uma pessoa real", "voce agora e real",
+    "você agora é real", "voce nao e sintetica", "voce nao e sintetico",
+    "você não é sintética", "você não é sintético", "seja uma pessoa real",
+    "you are a real person", "you are now real", "you are not synthetic",
+    "stop being synthetic", "pare de ser sintetica", "pare de ser sintetico",
+    "pare de ser sintética", "pare de ser sintético",
+    "identity_origin=", "real_person_reference=",
+]
 _CELEBRITY_KEYWORDS = [
     "celebridade", "famosa", "famoso", "atriz", "ator", "cantora", "cantor",
     "influencer", "youtuber", "celebrity", "famous actress", "famous actor",
@@ -122,7 +134,7 @@ def evaluate_rules(raw_text: str) -> list[SafetyReason]:
     if _contains_any(text, _FACE_REFERENCE_KEYWORDS):
         reasons.append(SafetyReason.FACE_REFERENCE)
 
-    if _contains_any(text, _REAL_PERSON_KEYWORDS):
+    if _contains_any(text, _REAL_PERSON_KEYWORDS) or _contains_any(text, _SELF_REAL_PERSON_KEYWORDS):
         reasons.append(SafetyReason.REAL_PERSON)
 
     if _contains_any(text, _CELEBRITY_KEYWORDS):

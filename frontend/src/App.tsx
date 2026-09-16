@@ -78,9 +78,12 @@ export default function App() {
                   Gerador de mídia: {health.media_provider.name} (
                   {health.media_provider.available ? "disponível" : "não configurado"})
                 </li>
-                <li>GPU: {health.hardware.gpu_model}</li>
-                <li>VRAM: {health.hardware.gpu_vram_gb}</li>
-                <li>CUDA: {health.hardware.cuda_version}</li>
+                <li>GPU vendor: {health.hardware.vendor}</li>
+                <li>GPU model: {health.hardware.model}</li>
+                <li>VRAM: {health.hardware.vram_gb}</li>
+                <li>Backend: {health.hardware.backend}</li>
+                <li>Driver: {health.hardware.driver_version}</li>
+                <li>Runtime: {health.hardware.runtime_version}</li>
               </ul>
             ) : (
               <p>Backend indisponível.</p>

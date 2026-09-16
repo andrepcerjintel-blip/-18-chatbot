@@ -11,7 +11,7 @@ Chat UI (React)  ──POST /chat──▶  FastAPI (app.api.chat)
    ▼
 Conversation Engine (app.conversation.engine)
    │
-   ├─▶ Intent Classifier (app.services.intent_classifier)
+   ├─▶ Intent Classifier (app.intent.classifier)
    │      regras deterministicas -> IntentResult (schema validado)
    │
    ├─▶ Safety Engine (app.safety.engine)            [SEMPRE executa]
@@ -22,12 +22,13 @@ Conversation Engine (app.conversation.engine)
    │      leitura/escrita de MUTABLE_FIELDS apenas (nunca Character)
    │
    ├─▶ Prompt Builder + LLM Provider (app.services.llm)
-   │      DEVELOPER_RULES (personagem/estado) e USER_INPUT são
-   │      passados como partes distintas, nunca concatenados
+   │      DEVELOPER_RULES (personagem/personalidade/estado) e USER_INPUT
+   │      são passados como partes distintas, nunca concatenados
    │      indiscriminadamente
    │
    ├─▶ ImageProvider (app.media)                     [se IMAGE/VIDEO_REQUEST]
-   │      NullImageProvider (padrão) ou ComfyUIProvider (stub)
+   │      NullImageProvider (padrão) ou ComfyUIProvider (stub, consulta
+   │      HardwareProfile via app.hardware, nunca presume CUDA/NVIDIA)
    │      nunca lança exceção; sempre retorna status estruturado
    │
    ├─▶ Post-generation Safety Check (app.safety.engine)
@@ -45,14 +46,16 @@ ChatResponse (schema Pydantic)  ──▶  Chat UI
 | `app.database` | Engine/Session SQLAlchemy, `init_db()`. |
 | `app.models` | ORM (Character, PersonalityProfile, Conversation, CharacterState, Message, MediaAsset). |
 | `app.schemas` | Contratos Pydantic (validação de entrada/saída, nunca texto livre executável). |
-| `app.character.manager` | Único ponto de escrita de `Character`; reforça invariantes protegidas. |
+| `app.character.manager` | Único ponto de escrita de `Character`; reforça invariantes protegidas (idade, `synthetic`, `identity_origin`, `real_person_reference`, gênero obrigatório). |
+| `app.personality` | Presets de personalidade neutros em gênero (`SHY`, `MODEST`, ... `BOLD`) + tradução de rótulo por gênero na apresentação. |
 | `app.safety` | Safety Engine + regras deterministicas; fail-closed. |
-| `app.services.intent_classifier` | Classificação de intenção baseada em regras. |
+| `app.intent.classifier` | Classificação de intenção baseada em regras. |
+| `app.memory.manager` | Short-term memory + resumo progressivo. |
+| `app.hardware` | `HardwareProfile` desacoplado de vendor (NVIDIA/AMD/Intel/CPU). |
 | `app.services.llm` | Abstração de LLM (`stub`, `anthropic`); desacoplada do resto do app. |
 | `app.media` | Abstração `ImageProvider` (`null`, `comfyui` stub); desacoplada do resto do app. |
 | `app.conversation.engine` | Orquestrador central do fluxo acima. |
-| `app.conversation.memory` | Short-term memory + resumo progressivo. |
-| `app.api` | Endpoints FastAPI (characters, conversations, chat, media, health). |
+| `app.api` | Endpoints FastAPI (characters, conversations, chat, media, health, hardware). |
 
 ## Desacoplamento do gerador de imagens
 

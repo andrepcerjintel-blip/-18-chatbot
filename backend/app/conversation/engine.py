@@ -18,9 +18,10 @@ from __future__ import annotations
 from sqlalchemy.orm import Session
 
 from app.character.manager import CharacterManager
-from app.conversation.memory import MemoryManager
+from app.intent.classifier import IntentClassifier
 from app.logging_config import logger
 from app.media.provider_base import ImageProvider
+from app.memory.manager import MemoryManager
 from app.models.character_state import CharacterState
 from app.models.conversation import Conversation
 from app.models.message import Message
@@ -30,7 +31,6 @@ from app.schemas.conversation import CharacterStateSchema
 from app.schemas.intent import IntentType
 from app.schemas.media import ImageRequest, MediaStatus
 from app.schemas.safety import SafetyDecision
-from app.services.intent_classifier import IntentClassifier
 from app.services.llm.base import LLMCharacterContext, LLMProvider
 
 _BLOCKED_REPLY = (

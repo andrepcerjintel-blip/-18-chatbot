@@ -29,7 +29,7 @@ class PersonalityProfile(Base):
     character_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("characters.id", ondelete="CASCADE"), unique=True, nullable=False
     )
-    preset: Mapped[str] = mapped_column(String(50), nullable=False, default="custom")
+    preset: Mapped[str] = mapped_column(String(50), nullable=False, default="CUSTOM")
 
     shyness: Mapped[int] = mapped_column(Integer, nullable=False, default=50)
     extroversion: Mapped[int] = mapped_column(Integer, nullable=False, default=50)

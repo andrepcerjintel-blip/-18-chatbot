@@ -36,8 +36,11 @@ class Settings(BaseSettings):
     llm_api_key: str = Field(default="", alias="LLM_API_KEY")
     llm_model: str = Field(default="", alias="LLM_MODEL")
 
+    gpu_vendor: str = Field(default="UNKNOWN", alias="GPU_VENDOR")
     gpu_model: str = Field(default="UNKNOWN", alias="GPU_MODEL")
     gpu_vram_gb: str = Field(default="UNKNOWN", alias="GPU_VRAM_GB")
+    gpu_backend: str = Field(default="UNKNOWN", alias="GPU_BACKEND")
+    gpu_driver_version: str = Field(default="UNKNOWN", alias="GPU_DRIVER_VERSION")
     cuda_version: str = Field(default="UNKNOWN", alias="CUDA_VERSION")
 
     media_provider: str = Field(default="null", alias="MEDIA_PROVIDER")

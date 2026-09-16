@@ -15,12 +15,14 @@ export interface Personality {
   affection: number;
 }
 
+export type Gender = "male" | "female";
+
 export interface Character {
   id: string;
   name: string;
   age: number;
   synthetic: boolean;
-  gender: string;
+  gender: Gender;
   appearance: string;
   hair: string;
   eyes: string;
@@ -29,6 +31,9 @@ export interface Character {
   body_description: string;
   distinctive_features: string;
   visual_identity_reference: string;
+  // Campos protegidos, controlados exclusivamente pelo servidor.
+  identity_origin: string;
+  real_person_reference: string | null;
   created_at: string;
   personality: Personality;
 }
@@ -80,12 +85,23 @@ export interface ChatResponse {
   state: CharacterState | null;
 }
 
+export interface HardwareProfile {
+  vendor: string;
+  model: string;
+  vram_gb: string;
+  backend: string;
+  driver_version: string;
+  runtime_version: string;
+  supports_fp16: boolean;
+  supports_bf16: boolean;
+}
+
 export interface HealthResponse {
   status: string;
   app_env: string;
   llm_provider: string;
   media_provider: { name: string; available: boolean; detail: string };
-  hardware: { gpu_model: string; gpu_vram_gb: string; cuda_version: string };
+  hardware: HardwareProfile;
 }
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
@@ -102,6 +118,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
 export const api = {
   health: () => request<HealthResponse>("/health"),
+  hardware: () => request<HardwareProfile>("/hardware"),
   listCharacters: () => request<Character[]>("/characters"),
   createCharacter: (payload: Record<string, unknown>) =>
     request<Character>("/characters", { method: "POST", body: JSON.stringify(payload) }),

@@ -5,10 +5,10 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
 from app.conversation.engine import ConversationEngine
+from app.intent.classifier import IntentClassifier
 from app.media.provider_factory import get_image_provider
 from app.models.conversation import Conversation
 from app.schemas.chat import ChatRequest, ChatResponse
-from app.services.intent_classifier import IntentClassifier
 from app.services.llm.factory import get_llm_provider
 
 router = APIRouter(tags=["chat"])

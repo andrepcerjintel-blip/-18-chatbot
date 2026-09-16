@@ -7,7 +7,7 @@ from app.schemas.character import CharacterCreate, CharacterUpdate
 
 
 def _valid_payload(**overrides) -> CharacterCreate:
-    base = dict(name="Luna", age=24, gender="feminino")
+    base = dict(name="Luna", age=24, gender="female")
     base.update(overrides)
     return CharacterCreate(**base)
 
@@ -53,6 +53,41 @@ def test_manager_rejects_protected_field_dict_defense_in_depth(db_session):
     class FakeUpdate:
         def model_dump(self, exclude_unset=True):
             return {"age": 15}
+
+    with pytest.raises(ProtectedFieldError):
+        manager.update(character.id, FakeUpdate())
+
+
+def test_male_character_is_first_class(db_session):
+    manager = CharacterManager(db_session)
+    character = manager.create(_valid_payload(gender="male", name="Marco"))
+    assert character.gender == "male"
+    assert character.synthetic is True
+    assert character.age == 24
+
+
+def test_gender_is_required_no_default(db_session):
+    with pytest.raises(Exception):
+        CharacterCreate(name="Sem Genero", age=24)
+
+
+def test_identity_origin_defaults_to_synthetic(db_session):
+    manager = CharacterManager(db_session)
+    character = manager.create(_valid_payload())
+    assert character.identity_origin == "synthetic_generation"
+    assert not character.real_person_reference
+
+
+def test_identity_origin_and_real_person_reference_are_protected(db_session):
+    manager = CharacterManager(db_session)
+    character = manager.create(_valid_payload())
+
+    assert not hasattr(CharacterUpdate(), "identity_origin")
+    assert not hasattr(CharacterUpdate(), "real_person_reference")
+
+    class FakeUpdate:
+        def model_dump(self, exclude_unset=True):
+            return {"identity_origin": "captured_photo", "real_person_reference": "someone"}
 
     with pytest.raises(ProtectedFieldError):
         manager.update(character.id, FakeUpdate())

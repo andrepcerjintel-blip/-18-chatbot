@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from app.intent.classifier import IntentClassifier
 from app.schemas.intent import IntentType
-from app.services.intent_classifier import IntentClassifier
 
 
 def test_greeting_is_chat():

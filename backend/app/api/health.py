@@ -3,6 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter
 
 from app.config import get_settings
+from app.hardware.profile import get_hardware_profile
 from app.media.provider_factory import get_image_provider
 from app.services.llm.factory import get_llm_provider
 
@@ -15,6 +16,7 @@ def health():
     image_provider = get_image_provider()
     llm_provider = get_llm_provider()
     media_health = image_provider.health_check()
+    hardware = get_hardware_profile()
     return {
         "status": "ok",
         "app_env": settings.app_env,
@@ -24,9 +26,13 @@ def health():
             "available": media_health.available,
             "detail": media_health.detail,
         },
-        "hardware": {
-            "gpu_model": settings.gpu_model,
-            "gpu_vram_gb": settings.gpu_vram_gb,
-            "cuda_version": settings.cuda_version,
-        },
+        "hardware": hardware.model_dump(),
     }
+
+
+@router.get("/hardware")
+def hardware():
+    """Expoe o HardwareProfile estruturado e desacoplado de vendor. Somente
+    leitura: reflete o que foi registrado em .env (via scripts/audit_env.py
+    ou manualmente), nunca detecta ou instala nada em tempo de requisicao."""
+    return get_hardware_profile().model_dump()

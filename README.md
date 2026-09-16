@@ -5,18 +5,24 @@ sintéticos**, projetado para rodar localmente e de forma privada, prioritariame
 no Windows.
 
 > Idade mínima fixa de personagens: **21 anos**. Todos os personagens são
-> sintéticos (`synthetic = true`), nunca baseados em pessoas reais. Veja
+> sintéticos (`synthetic = true`), nunca baseados em pessoas reais, e
+> podem ser **masculinos ou femininos** (`gender` é obrigatório, sem
+> valor padrão — o sistema nunca presume um gênero). Veja
 > [SECURITY.md](SECURITY.md) para todas as invariantes de segurança.
 
 ## Status atual (Fase 1)
 
 - ✅ Backend completo (FastAPI + SQLite) funcionando em modo textual.
 - ✅ Frontend completo (React + Vite) com chat estilo mensageiro.
+- ✅ Personagens masculinos e femininos como cidadãos de primeira classe;
+  personalidade com identificadores neutros de gênero (`app.personality`).
 - ✅ Character Manager, Personalidade, Memória, Intent Classifier, Safety Engine.
 - ✅ `ImageProvider` abstrato com `NullImageProvider` (padrão) e `ComfyUIProvider`
   em modo stub/configurável.
-- ⏳ Geração visual real: depende de hardware (GPU/VRAM/CUDA) ainda **desconhecido**.
-  Veja [HARDWARE.md](HARDWARE.md).
+- ✅ `HardwareProfile` desacoplado de vendor (NVIDIA/AMD/Intel/CPU) — veja
+  [HARDWARE.md](HARDWARE.md).
+- ⏳ Geração visual real: depende de hardware (GPU vendor/VRAM/backend) ainda
+  **desconhecido**.
 
 ## Requisitos
 

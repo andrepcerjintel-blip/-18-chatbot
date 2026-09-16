@@ -10,8 +10,8 @@ from __future__ import annotations
 
 import re
 
-from app.schemas.intent import IntentResult, IntentType
 from app.safety.rules import evaluate_rules
+from app.schemas.intent import IntentResult, IntentType
 
 _VIDEO_PATTERNS = [
     r"\bvideo\b", r"\bvídeo\b", r"faz(a)?\s+um\s+v[ií]deo", r"manda(r)?\s+um\s+v[ií]deo",

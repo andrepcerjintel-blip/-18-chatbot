@@ -11,7 +11,7 @@ from app.services.llm.stub_provider import StubLLMProvider
 
 def _make_conversation(db_session):
     manager = CharacterManager(db_session)
-    character = manager.create(CharacterCreate(name="Luna", age=24, gender="feminino"))
+    character = manager.create(CharacterCreate(name="Luna", age=24, gender="female"))
     conversation = Conversation(character_id=character.id)
     db_session.add(conversation)
     db_session.flush()
