@@ -241,11 +241,51 @@ if ($needsDownload) {
 }
 
 Write-Host "`n=== 6/6: Validacao + configuracao do projeto ===" -ForegroundColor Cyan
-& $ComfyPython -c "import torch; print('torch', torch.__version__); print('cuda_available', torch.cuda.is_available()); print('device', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU (sem aceleracao GPU)')"
+$torchCudaAvailable = (& $ComfyPython -c "import torch; print(torch.cuda.is_available())").Trim()
+$torchDeviceName = "CPU (sem aceleracao GPU)"
+if ($torchCudaAvailable -eq "True") {
+    $torchDeviceName = (& $ComfyPython -c "import torch; print(torch.cuda.get_device_name(0))").Trim()
+}
+Write-Host "cuda_available $torchCudaAvailable"
+Write-Host "device $torchDeviceName"
 
 Set-EnvValue -Path $EnvFile -Key "MEDIA_PROVIDER" -Value "comfyui"
 Set-EnvValue -Path $EnvFile -Key "IMAGE_MODEL_PATH" -Value $CheckpointName
 Set-EnvValue -Path $EnvFile -Key "COMFYUI_URL" -Value "http://127.0.0.1:8188"
+
+# Preenche o HardwareProfile consumido por app/hardware/profile.py. Sem
+# isso, GPU_VENDOR fica UNKNOWN para sempre e o ComfyUIProvider recusa
+# gerar imagem ("hardware profile ... still UNKNOWN") mesmo com o
+# ComfyUI funcionando perfeitamente -- ja aconteceu em teste real.
+if ($torchCudaAvailable -eq "True" -and (Test-Command "nvidia-smi")) {
+    $gpuLine = (nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader) 2>$null
+    if ($gpuLine) {
+        $gpuParts = ($gpuLine -split "`n")[0].Split(",") | ForEach-Object { $_.Trim() }
+        $gpuModel = $gpuParts[0]
+        $gpuVramMiB = ($gpuParts[1] -replace " MiB", "")
+        $gpuDriver = $gpuParts[2]
+        $gpuVramGb = [math]::Round([double]$gpuVramMiB / 1024, 1)
+
+        Set-EnvValue -Path $EnvFile -Key "GPU_VENDOR" -Value "nvidia"
+        Set-EnvValue -Path $EnvFile -Key "GPU_MODEL" -Value $gpuModel
+        Set-EnvValue -Path $EnvFile -Key "GPU_VRAM_GB" -Value $gpuVramGb
+        Set-EnvValue -Path $EnvFile -Key "GPU_BACKEND" -Value "cuda"
+        Set-EnvValue -Path $EnvFile -Key "GPU_DRIVER_VERSION" -Value $gpuDriver
+
+        $cudaSmiLine = (nvidia-smi) 2>$null | Select-String "CUDA Version"
+        if ($cudaSmiLine) {
+            $cudaVersion = ($cudaSmiLine -split "CUDA Version:")[1].Trim().Split(" ")[0]
+            Set-EnvValue -Path $EnvFile -Key "CUDA_VERSION" -Value $cudaVersion
+        }
+        Write-Host "GPU registrada no .env: $gpuModel ($gpuVramGb GB, driver $gpuDriver)" -ForegroundColor Green
+    } else {
+        Write-Host "[AVISO] nvidia-smi nao retornou dados -- GPU_VENDOR continua UNKNOWN no .env." -ForegroundColor Yellow
+        Write-Host "Preencha GPU_VENDOR/GPU_MODEL/GPU_VRAM_GB/GPU_BACKEND manualmente no .env se necessario." -ForegroundColor Yellow
+    }
+} else {
+    Write-Host "[AVISO] GPU CUDA nao detectada agora -- GPU_VENDOR continua UNKNOWN no .env." -ForegroundColor Yellow
+}
+
 Write-Host "`n.env atualizado: MEDIA_PROVIDER=comfyui, IMAGE_MODEL_PATH=$CheckpointName" -ForegroundColor Green
 
 Write-Host "`nConcluido." -ForegroundColor Green
