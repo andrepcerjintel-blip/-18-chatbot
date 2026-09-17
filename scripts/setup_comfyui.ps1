@@ -86,12 +86,28 @@ try {
 }
 Write-Host "OK." -ForegroundColor Green
 
-Write-Host "`n=== 1/6: ComfyUI (clonar/atualizar) ===" -ForegroundColor Cyan
+Write-Host "`n=== 1/6: ComfyUI (clonar/atualizar para ultima RELEASE estavel) ===" -ForegroundColor Cyan
 if (Test-Path (Join-Path $ComfyDir ".git")) {
-    Write-Host "Ja clonado em $ComfyDir -- atualizando (git pull)..."
-    git -C $ComfyDir pull --ff-only
+    Write-Host "Ja clonado em $ComfyDir -- buscando atualizacoes..."
+    git -C $ComfyDir fetch --all --tags --prune
 } else {
     git clone https://github.com/comfyanonymous/ComfyUI $ComfyDir
+    git -C $ComfyDir fetch --tags
+}
+
+# Usa a ULTIMA TAG DE RELEASE (ex.: v0.7.x), nunca a branch de
+# desenvolvimento (master) diretamente. A branch muda a cada commit e
+# suas dependencias transitorias (ex.: comfy-kitchen) frequentemente
+# ficam fora de sincronia com o que esta publicado no PyPI naquele
+# momento -- causando erros como "AttributeError: module 'comfy_kitchen'
+# has no attribute ...". Uma release marcada e testada como um conjunto
+# coerente de codigo + requirements.txt.
+$latestTag = (git -C $ComfyDir tag --sort=-v:refname | Select-Object -First 1)
+if ($latestTag) {
+    Write-Host "Usando release estavel: $latestTag"
+    git -C $ComfyDir checkout $latestTag --quiet 2>$null
+} else {
+    Write-Host "[AVISO] Nenhuma tag de release encontrada -- usando a branch padrao (pode ser instavel)." -ForegroundColor Yellow
 }
 
 Write-Host "`n=== 2/6: Virtualenv proprio do ComfyUI ===" -ForegroundColor Cyan
