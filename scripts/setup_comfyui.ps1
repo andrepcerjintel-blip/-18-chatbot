@@ -129,6 +129,15 @@ if (-not $torchOk) {
 
 Write-Host "`n=== 4/6: Dependencias do ComfyUI ===" -ForegroundColor Cyan
 & $ComfyPip install -r (Join-Path $ComfyDir "requirements.txt")
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "[AVISO] pip install -r requirements.txt terminou com erro (codigo $LASTEXITCODE)." -ForegroundColor Yellow
+    Write-Host "Continuando mesmo assim -- se o ComfyUI reclamar de um modulo" -ForegroundColor Yellow
+    Write-Host "faltando ao iniciar, rode: ComfyUI\venv\Scripts\pip install <nome-do-modulo>" -ForegroundColor Yellow
+}
+# Dependencia usada pelo recurso de banco de dados do ComfyUI
+# (app/database/db.py) que, em algumas combinacoes de versao, nao vem
+# resolvida automaticamente so com requirements.txt.
+& $ComfyPip install filelock
 
 Write-Host "`n=== 5/6: Checkpoint visual ($CheckpointName, ~2.1 GB) ===" -ForegroundColor Cyan
 Write-Host "Origem: Comfy-Org/stable-diffusion-v1-5-archive (Hugging Face)"
