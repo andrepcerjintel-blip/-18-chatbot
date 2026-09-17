@@ -143,6 +143,15 @@ if ($LASTEXITCODE -ne 0) {
 # resolvida automaticamente so com requirements.txt.
 & $ComfyPython -m pip install filelock
 
+# comfy-kitchen (backend eager opcional de otimizacao) usa anotacoes de
+# tipo (list[int]) que quebram o carregamento do ComfyUI inteiro em
+# versoes do PyTorch anteriores a 2.7 (ValueError: infer_schema...,
+# nao um ImportError, entao o fallback do proprio ComfyUI nao pega).
+# Ver https://github.com/Comfy-Org/ComfyUI/issues/15441 -- fixado a
+# forcar uma versao antiga e compativel em vez de arriscar a mais
+# recente, priorizando "funcionar hoje" sobre otimizacoes opcionais.
+& $ComfyPython -m pip install "comfy-kitchen==0.2.27"
+
 Write-Host "`n=== 5/6: Checkpoint visual ($CheckpointName, ~2.1 GB) ===" -ForegroundColor Cyan
 Write-Host "Origem: Comfy-Org/stable-diffusion-v1-5-archive (Hugging Face)"
 Write-Host "Licenca: CreativeML Open RAIL-M | Estilo: geral/ilustrativo-realista"
