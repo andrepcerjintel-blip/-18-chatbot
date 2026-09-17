@@ -153,17 +153,44 @@ if (Test-Path $checkpointPath) {
 
 if ($needsDownload) {
     Write-Host "Baixando para $checkpointPath ..."
-    if (Test-Command "curl.exe") {
-        curl.exe -L --fail --progress-bar -o $checkpointPath $CheckpointUrl
-    } else {
-        Invoke-WebRequest -Uri $CheckpointUrl -OutFile $checkpointPath
+    Write-Host "Downloads grandes podem cair no meio (conexao instavel) -- o script" -ForegroundColor Yellow
+    Write-Host "retoma de onde parou automaticamente, ate 5 tentativas." -ForegroundColor Yellow
+
+    $maxAttempts = 5
+    $attempt = 1
+    $downloadOk = $false
+    while ($attempt -le $maxAttempts -and -not $downloadOk) {
+        if ($attempt -gt 1) {
+            $resumeSize = 0
+            if (Test-Path $checkpointPath) { $resumeSize = (Get-Item $checkpointPath).Length }
+            Write-Host "`nTentativa $attempt de $maxAttempts (retomando de $([math]::Round($resumeSize/1MB,1)) MB)..." -ForegroundColor Yellow
+            Start-Sleep -Seconds 3
+        }
+
+        if (Test-Command "curl.exe") {
+            # -C - retoma um download parcial existente automaticamente.
+            curl.exe -C - -L --fail --progress-bar -o $checkpointPath $CheckpointUrl
+        } else {
+            # Invoke-WebRequest nao retoma; reinicia do zero a cada tentativa.
+            Invoke-WebRequest -Uri $CheckpointUrl -OutFile $checkpointPath
+        }
+
+        if ((Test-Path $checkpointPath) -and ((Get-Item $checkpointPath).Length -ge $CheckpointMinBytes)) {
+            $downloadOk = $true
+        } else {
+            $attempt++
+        }
     }
-    $downloadedSize = (Get-Item $checkpointPath).Length
-    if ($downloadedSize -lt $CheckpointMinBytes) {
-        Write-Host "[ERRO] Download parece incompleto ($([math]::Round($downloadedSize/1MB,1)) MB, esperado ~2.1 GB)." -ForegroundColor Red
-        Write-Host "Verifique sua conexao e rode este script novamente." -ForegroundColor Red
+
+    if (-not $downloadOk) {
+        $finalSize = 0
+        if (Test-Path $checkpointPath) { $finalSize = (Get-Item $checkpointPath).Length }
+        Write-Host "[ERRO] Download incompleto apos $maxAttempts tentativas ($([math]::Round($finalSize/1MB,1)) MB, esperado ~2.1 GB)." -ForegroundColor Red
+        Write-Host "O arquivo parcial foi mantido -- rode este script novamente mais tarde" -ForegroundColor Red
+        Write-Host "para retomar de onde parou (nao precisa recomecar do zero)." -ForegroundColor Red
         exit 1
     }
+    $downloadedSize = (Get-Item $checkpointPath).Length
     Write-Host "Download concluido ($([math]::Round($downloadedSize/1GB,2)) GB)." -ForegroundColor Green
 }
 
