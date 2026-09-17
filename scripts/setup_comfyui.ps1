@@ -100,8 +100,12 @@ if (Test-Path $ComfyVenv) {
     py -3.11 -m venv $ComfyVenv
     Write-Host "Criado em $ComfyVenv." -ForegroundColor Green
 }
-$ComfyPip = Join-Path $ComfyVenv "Scripts\pip.exe"
 $ComfyPython = Join-Path $ComfyVenv "Scripts\python.exe"
+# Sempre "python -m pip", nunca pip.exe diretamente: pip.exe e um
+# launcher com o caminho do python.exe gravado dentro dele no momento da
+# instalacao -- se a pasta do projeto for movida depois (ex.: de
+# Downloads para Desktop), esse caminho fica obsoleto e pip.exe quebra
+# ("Fatal error in launcher"), mesmo com python.exe funcionando normalmente.
 & $ComfyPython -m pip install --upgrade pip
 
 Write-Host "`n=== 3/6: PyTorch com suporte CUDA (build oficial, sem Toolkit global) ===" -ForegroundColor Cyan
@@ -112,7 +116,7 @@ Write-Host "com runtime CUDA embutido (cu124 primeiro, fallback cu121)." -Foregr
 $torchOk = $false
 foreach ($cudaTag in @("cu124", "cu121")) {
     Write-Host "Tentando build $cudaTag..."
-    & $ComfyPip install torch torchvision torchaudio --index-url "https://download.pytorch.org/whl/$cudaTag"
+    & $ComfyPython -m pip install torch torchvision torchaudio --index-url "https://download.pytorch.org/whl/$cudaTag"
     if ($LASTEXITCODE -eq 0) {
         $torchOk = $true
         Write-Host "PyTorch ($cudaTag) instalado." -ForegroundColor Green
@@ -124,20 +128,20 @@ if (-not $torchOk) {
     Write-Host "[AVISO] Nenhuma build CUDA instalou com sucesso. Instalando PyTorch" -ForegroundColor Yellow
     Write-Host "CPU-only como fallback -- geracao funcionara, porem MUITO mais lenta" -ForegroundColor Yellow
     Write-Host "(sem aceleracao de GPU). Verifique manualmente https://pytorch.org/get-started/locally/" -ForegroundColor Yellow
-    & $ComfyPip install torch torchvision torchaudio
+    & $ComfyPython -m pip install torch torchvision torchaudio
 }
 
 Write-Host "`n=== 4/6: Dependencias do ComfyUI ===" -ForegroundColor Cyan
-& $ComfyPip install -r (Join-Path $ComfyDir "requirements.txt")
+& $ComfyPython -m pip install -r (Join-Path $ComfyDir "requirements.txt")
 if ($LASTEXITCODE -ne 0) {
     Write-Host "[AVISO] pip install -r requirements.txt terminou com erro (codigo $LASTEXITCODE)." -ForegroundColor Yellow
     Write-Host "Continuando mesmo assim -- se o ComfyUI reclamar de um modulo" -ForegroundColor Yellow
-    Write-Host "faltando ao iniciar, rode: ComfyUI\venv\Scripts\pip install <nome-do-modulo>" -ForegroundColor Yellow
+    Write-Host "faltando ao iniciar, rode: ComfyUI\venv\Scripts\python.exe -m pip install <nome-do-modulo>" -ForegroundColor Yellow
 }
 # Dependencia usada pelo recurso de banco de dados do ComfyUI
 # (app/database/db.py) que, em algumas combinacoes de versao, nao vem
 # resolvida automaticamente so com requirements.txt.
-& $ComfyPip install filelock
+& $ComfyPython -m pip install filelock
 
 Write-Host "`n=== 5/6: Checkpoint visual ($CheckpointName, ~2.1 GB) ===" -ForegroundColor Cyan
 Write-Host "Origem: Comfy-Org/stable-diffusion-v1-5-archive (Hugging Face)"

@@ -72,8 +72,12 @@ if (Test-Path $VenvDir) {
 }
 
 Write-Host "`n=== 3/5: Dependencias do backend (dentro do virtualenv) ===" -ForegroundColor Cyan
+# "python -m pip", nunca pip.exe diretamente: pip.exe grava o caminho do
+# python.exe dentro de si no momento da instalacao -- se a pasta do
+# projeto for movida depois, esse caminho fica obsoleto e pip.exe quebra
+# ("Fatal error in launcher"), mesmo com python.exe funcionando normalmente.
 & "$VenvDir\Scripts\python.exe" -m pip install --upgrade pip
-& "$VenvDir\Scripts\pip.exe" install -r (Join-Path $BackendDir "requirements.txt")
+& "$VenvDir\Scripts\python.exe" -m pip install -r (Join-Path $BackendDir "requirements.txt")
 
 Write-Host "`n=== 4/5: Git ===" -ForegroundColor Cyan
 if (Test-Command "git") {
