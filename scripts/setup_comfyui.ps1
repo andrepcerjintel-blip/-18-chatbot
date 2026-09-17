@@ -8,7 +8,8 @@
     - Clona/atualiza o ComfyUI em <raiz do projeto>\ComfyUI (venv proprio,
       separado do backend, para nao misturar dependencias pesadas).
     - Instala PyTorch com suporte CUDA (build oficialmente suportada;
-      tenta cu124, depois cu121, nunca instala CUDA Toolkit global).
+      tenta cu128, cu126, cu124, cu121 nessa ordem -- nunca instala CUDA
+      Toolkit global).
     - Instala as dependencias do ComfyUI.
     - Baixa UM checkpoint leve (Stable Diffusion 1.5, fp16, ~2.1 GB,
       licenca CreativeML Open RAIL-M) para validacao funcional do
@@ -111,12 +112,13 @@ $ComfyPython = Join-Path $ComfyVenv "Scripts\python.exe"
 Write-Host "`n=== 3/6: PyTorch com suporte CUDA (build oficial, sem Toolkit global) ===" -ForegroundColor Cyan
 Write-Host "IMPORTANTE: 'CUDA 13.0' no driver e apenas compatibilidade maxima," -ForegroundColor Yellow
 Write-Host "NAO exige instalar o CUDA Toolkit 13.0. Instalando o wheel do PyTorch" -ForegroundColor Yellow
-Write-Host "com runtime CUDA embutido (cu124 primeiro, fallback cu121)." -ForegroundColor Yellow
+Write-Host "com runtime CUDA embutido -- tags mais novas primeiro (o ComfyUI atual" -ForegroundColor Yellow
+Write-Host "exige PyTorch >= 2.7 para funcionar sem erros de compatibilidade)." -ForegroundColor Yellow
 
 $torchOk = $false
-foreach ($cudaTag in @("cu124", "cu121")) {
+foreach ($cudaTag in @("cu128", "cu126", "cu124", "cu121")) {
     Write-Host "Tentando build $cudaTag..."
-    & $ComfyPython -m pip install torch torchvision torchaudio --index-url "https://download.pytorch.org/whl/$cudaTag"
+    & $ComfyPython -m pip install --upgrade torch torchvision torchaudio --index-url "https://download.pytorch.org/whl/$cudaTag"
     if ($LASTEXITCODE -eq 0) {
         $torchOk = $true
         Write-Host "PyTorch ($cudaTag) instalado." -ForegroundColor Green
@@ -143,14 +145,20 @@ if ($LASTEXITCODE -ne 0) {
 # resolvida automaticamente so com requirements.txt.
 & $ComfyPython -m pip install filelock
 
-# comfy-kitchen (backend eager opcional de otimizacao) usa anotacoes de
-# tipo (list[int]) que quebram o carregamento do ComfyUI inteiro em
-# versoes do PyTorch anteriores a 2.7 (ValueError: infer_schema...,
-# nao um ImportError, entao o fallback do proprio ComfyUI nao pega).
-# Ver https://github.com/Comfy-Org/ComfyUI/issues/15441 -- fixado a
-# forcar uma versao antiga e compativel em vez de arriscar a mais
-# recente, priorizando "funcionar hoje" sobre otimizacoes opcionais.
-& $ComfyPython -m pip install "comfy-kitchen==0.2.27"
+# comfy-kitchen (dependencia do ComfyUI, backend de otimizacao) exige
+# PyTorch >= 2.7 nas versoes atuais do ComfyUI -- com PyTorch mais antigo,
+# o import falha com ValueError (nao ImportError, entao nem o fallback do
+# proprio ComfyUI pega) e o app inteiro nao sobe.
+# Ver https://github.com/Comfy-Org/ComfyUI/issues/15441
+$torchVersionOutput = & $ComfyPython -c "import torch; print(torch.__version__)"
+Write-Host "PyTorch instalado: $torchVersionOutput"
+$torchMajorMinor = $torchVersionOutput -replace '^(\d+)\.(\d+).*', '$1.$2'
+if ([version]$torchMajorMinor -lt [version]"2.7") {
+    Write-Host "[AVISO] PyTorch $torchVersionOutput e anterior a 2.7 -- o ComfyUI pode" -ForegroundColor Yellow
+    Write-Host "falhar ao iniciar (erro de compatibilidade com comfy-kitchen)." -ForegroundColor Yellow
+    Write-Host "Nenhuma build CUDA >= 2.7 foi encontrada para este Python/GPU." -ForegroundColor Yellow
+    Write-Host "Verifique manualmente builds mais recentes em https://pytorch.org/get-started/locally/" -ForegroundColor Yellow
+}
 
 Write-Host "`n=== 5/6: Checkpoint visual ($CheckpointName, ~2.1 GB) ===" -ForegroundColor Cyan
 Write-Host "Origem: Comfy-Org/stable-diffusion-v1-5-archive (Hugging Face)"

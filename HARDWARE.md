@@ -102,7 +102,7 @@ cada decisão:
 
 | # | Decisão | Status |
 |---|---|---|
-| 1 | Build do PyTorch | **Definido**: instalado pelo `scripts/setup_comfyui.ps1` dentro do venv próprio do ComfyUI, tentando `cu124` e depois `cu121` (fallback CPU-only se ambos falharem) |
+| 1 | Build do PyTorch | **Definido**: instalado pelo `scripts/setup_comfyui.ps1` dentro do venv próprio do ComfyUI, tentando `cu128`, `cu126`, `cu124`, `cu121` nessa ordem (fallback CPU-only se todas falharem). PyTorch **>= 2.7** é necessário — versões mais antigas quebram a inicialização do ComfyUI por incompatibilidade com `comfy-kitchen` (ver nota abaixo) |
 | 2 | Backend (CUDA) + compat. ComfyUI | **Definido**: CUDA via wheel PyTorch, sem Toolkit global |
 | 3 | Checkpoint visual | **Definido**: Stable Diffusion 1.5 fp16 pruned-emaonly (`v1-5-pruned-emaonly-fp16.safetensors`, ~2.13 GB, CreativeML Open RAIL-M) — ver justificativa abaixo |
 | 4 | Resolução padrão | **Definido: 512×512** (nativo do SD1.5, seguro para 4 GB) — `COMFYUI_WIDTH`/`COMFYUI_HEIGHT` no `.env` |
@@ -193,6 +193,21 @@ Quando a Fase 2 (ComfyUIProvider real) começar:
    torch.cuda.get_device_properties(0).total_memory
    ```
 5. Só então habilitar `MEDIA_PROVIDER=comfyui` de fato.
+
+### Problema conhecido: PyTorch < 2.7 quebra o ComfyUI atual
+
+O ComfyUI (branch principal) depende de `comfy-kitchen`, que usa
+anotações de tipo modernas (`list[int]`) em `torch.library.custom_op`.
+Com PyTorch anterior a 2.7, isso levanta `ValueError` (não
+`ImportError`) durante o import, então nem o próprio mecanismo de
+fallback do ComfyUI consegue capturar o erro — a inicialização inteira
+trava. Ver [issue #15441](https://github.com/Comfy-Org/ComfyUI/issues/15441).
+`scripts/setup_comfyui.ps1` já tenta instalar PyTorch >= 2.7 por padrão
+(tags `cu128`/`cu126` antes de `cu124`/`cu121`) e avisa se não
+conseguir. **Não** tente contornar isso baixando a versão do
+`comfy-kitchen` — isso só troca esse erro por outro (`AttributeError`
+em funções que o ComfyUI atual espera que existam). A correção correta
+é sempre ter PyTorch >= 2.7.
 
 ## Checkpoint escolhido vs. alternativas futuras
 
