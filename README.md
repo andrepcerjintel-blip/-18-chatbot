@@ -10,21 +10,23 @@ no Windows.
 > valor padrão — o sistema nunca presume um gênero). Veja
 > [SECURITY.md](SECURITY.md) para todas as invariantes de segurança.
 
-## Status atual (Fase 1)
+## Status atual (Fase 1 + Fase 2)
 
 - ✅ Backend completo (FastAPI + SQLite) funcionando em modo textual.
 - ✅ Frontend completo (React + Vite) com chat estilo mensageiro.
 - ✅ Personagens masculinos e femininos como cidadãos de primeira classe;
   personalidade com identificadores neutros de gênero (`app.personality`).
 - ✅ Character Manager, Personalidade, Memória, Intent Classifier, Safety Engine.
-- ✅ `ImageProvider` abstrato com `NullImageProvider` (padrão) e `ComfyUIProvider`
-  em modo stub/configurável.
+- ✅ `ImageProvider` abstrato com `NullImageProvider` (padrão, sem GPU) e
+  `ComfyUIProvider` **real** (fila via `/prompt`, espera, download,
+  tratamento de OOM/timeout/erro) — testado neste repositório contra um
+  ComfyUI simulado; validado na GPU real do usuário via
+  `scripts/setup_comfyui.ps1`.
 - ✅ `HardwareProfile` desacoplado de vendor (NVIDIA/AMD/Intel/CPU) — veja
   [HARDWARE.md](HARDWARE.md).
-- ✅ Hardware real da máquina alvo já auditado (NVIDIA RTX 3050 Laptop,
-  4 GB VRAM) — geração visual real ainda **não habilitada**: aguarda
-  implementação do `ComfyUIProvider` com as restrições de baixa VRAM
-  documentadas em [HARDWARE.md](HARDWARE.md) (Fase 2).
+- ✅ Hardware real auditado (NVIDIA RTX 3050 Laptop, 4 GB VRAM) e usado
+  para escolher parâmetros conservadores (SD 1.5 fp16, 512×512,
+  batch_size=1, `--lowvram`) — detalhes em [HARDWARE.md](HARDWARE.md).
 
 ## Requisitos
 
@@ -61,22 +63,31 @@ copy .env.example .env
 :: 3. (uma vez) Configurar Python 3.11 + Git + Node, se ausentes
 powershell -ExecutionPolicy Bypass -File scripts\setup_windows_env.ps1
 
-:: 4. Executar o script de inicialização
+:: 4. (uma vez, opcional) Instalar ComfyUI + PyTorch CUDA + checkpoint
+::    para habilitar geração real de imagem (downloads de alguns GB)
+powershell -ExecutionPolicy Bypass -File scripts\setup_comfyui.ps1
+
+:: 5. Executar o script de inicialização
 scripts\start.bat
 ```
 
 O `start.bat`:
-1. cria/ativa o virtualenv Python do backend (Python 3.11 especificamente,
+1. detecta automaticamente se o ComfyUI foi configurado (passo 4) e, se
+   sim, inicia-o e aguarda ficar pronto antes de continuar;
+2. cria/ativa o virtualenv Python do backend (Python 3.11 especificamente,
    via `py -3.11`; falha com instruções claras se não encontrado);
-2. instala dependências (se necessário);
-3. inicia o backend em `http://127.0.0.1:8000`;
-4. instala dependências do frontend (se necessário);
-5. inicia o frontend em `http://127.0.0.1:5173`;
-6. verifica o status do Media Provider (não bloqueia se não configurado);
+3. instala dependências (se necessário);
+4. inicia o backend em `http://127.0.0.1:8000`;
+5. instala dependências do frontend (se necessário);
+6. inicia o frontend em `http://127.0.0.1:5173`;
 7. abre o navegador.
 
-Ele **não** instala drivers NVIDIA, CUDA Toolkit ou qualquer software crítico do
-sistema.
+Sem o passo 4 (ComfyUI), o app funciona normalmente em modo textual e
+`IMAGE_REQUEST` retorna `MEDIA_PROVIDER_NOT_CONFIGURED` sem quebrar nada.
+
+Nenhum desses scripts instala drivers NVIDIA, CUDA Toolkit ou qualquer
+software crítico do sistema — veja [HARDWARE.md](HARDWARE.md) para os
+detalhes de cada decisão (checkpoint, resolução, VRAM).
 
 ### Execução manual (qualquer SO, para desenvolvimento)
 

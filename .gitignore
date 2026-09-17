@@ -22,6 +22,10 @@ frontend/node_modules/
 frontend/dist/
 frontend/.vite/
 
+# ComfyUI (Fase 2): clone de terceiros + checkpoints binarios, nunca
+# versionado neste repositorio. Instalado por scripts/setup_comfyui.ps1.
+/ComfyUI/
+
 # Generated media / logs (private, local, never committed)
 generated/*
 !generated/.gitkeep

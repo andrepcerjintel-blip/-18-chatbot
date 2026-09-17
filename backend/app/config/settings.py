@@ -45,7 +45,20 @@ class Settings(BaseSettings):
 
     media_provider: str = Field(default="null", alias="MEDIA_PROVIDER")
     comfyui_url: str = Field(default="http://127.0.0.1:8188", alias="COMFYUI_URL")
+    # Nome do arquivo de checkpoint tal como ComfyUI o enxerga em
+    # ComfyUI/models/checkpoints/ (nao um caminho absoluto no disco).
     image_model_path: str = Field(default="", alias="IMAGE_MODEL_PATH")
+
+    # Parametros de geracao -- padroes conservadores para 4 GB de VRAM
+    # (batch_size=1 e sempre fixo no codigo, nunca configuravel via .env).
+    comfyui_width: int = Field(default=512, alias="COMFYUI_WIDTH")
+    comfyui_height: int = Field(default=512, alias="COMFYUI_HEIGHT")
+    comfyui_steps: int = Field(default=20, alias="COMFYUI_STEPS")
+    comfyui_cfg: float = Field(default=7.0, alias="COMFYUI_CFG")
+    comfyui_sampler: str = Field(default="euler", alias="COMFYUI_SAMPLER")
+    comfyui_scheduler: str = Field(default="normal", alias="COMFYUI_SCHEDULER")
+    comfyui_negative_prompt: str = Field(default="", alias="COMFYUI_NEGATIVE_PROMPT")
+    comfyui_timeout_seconds: float = Field(default=180.0, alias="COMFYUI_TIMEOUT_SECONDS")
 
     generated_dir: str = Field(default=str(PROJECT_ROOT / "generated"), alias="GENERATED_DIR")
     logs_dir: str = Field(default=str(PROJECT_ROOT / "logs"), alias="LOGS_DIR")

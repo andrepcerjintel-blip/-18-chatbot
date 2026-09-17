@@ -55,6 +55,7 @@ export interface Message {
   content: string;
   intent: string | null;
   safety_status: string | null;
+  media_id: string | null;
   created_at: string;
 }
 
@@ -133,6 +134,10 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   }
   return res.json() as Promise<T>;
 }
+
+// URL direta dos bytes de uma imagem gerada. O frontend nunca conhece o
+// caminho no disco -- so o id, resolvido pelo backend em GET /media/{id}/file.
+export const mediaFileUrl = (mediaId: string) => `${BASE_URL}/media/${mediaId}/file`;
 
 export const api = {
   health: () => request<HealthResponse>("/health"),

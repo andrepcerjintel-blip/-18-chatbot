@@ -31,6 +31,7 @@ class MessageSchema(BaseModel):
     content: str
     intent: Optional[str] = None
     safety_status: Optional[str] = None
+    media_id: Optional[str] = None
     created_at: datetime
 
 

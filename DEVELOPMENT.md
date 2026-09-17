@@ -17,7 +17,7 @@ backend/
     conversation/           # Conversation Engine
     memory/                 # Short-term memory + resumo progressivo
     intent/                 # Intent Classifier
-    media/                 # ImageProvider (null/comfyui stub)
+    media/                 # ImageProvider (null real / comfyui real)
     hardware/               # HardwareProfile (NVIDIA/AMD/Intel/CPU)
     database/               # Engine/Session
     config/                 # Settings via .env
@@ -25,12 +25,17 @@ backend/
   pytest.ini
 frontend/                  # React + Vite
 tests/                      # Testes automatizados (pytest)
+  comfyui_mock_server.py    # Servidor ComfyUI simulado p/ testar o provider sem GPU
 scripts/
   audit_env.py             # Auditoria de ambiente (somente leitura)
   setup_windows_env.ps1    # Python 3.11 lado a lado + Git/Node (1x, Windows)
-  start.bat                # Inicialização no Windows (usa Python 3.11)
-workflows/                  # Workflows ComfyUI (Fase 2+)
-models/                     # Checkpoints visuais (Fase 2+, fora do git)
+  setup_comfyui.ps1        # PyTorch CUDA + ComfyUI + checkpoint (1x, Fase 2)
+  start_comfyui.bat        # Inicia o ComfyUI (--lowvram)
+  start.bat                # Inicialização no Windows (detecta ComfyUI + Python 3.11)
+ComfyUI/                    # Clone do ComfyUI + venv proprio (fora do git, Fase 2+)
+                             # checkpoints ficam em ComfyUI/models/checkpoints/
+workflows/                  # Reservado para workflows API JSON exportados (opcional)
+models/                     # Reservado (não usado -- ComfyUI mantém seus próprios em ComfyUI/models/)
 generated/                  # Mídia gerada (fora do git)
 logs/                        # Logs da aplicação (fora do git)
 ```
@@ -83,6 +88,10 @@ banco de desenvolvimento.
 2. Registrar em `app/media/provider_factory.py`.
 3. `generate_image()` deve sempre retornar `ImageResult`, nunca lançar
    exceção.
+4. Testar contra um servidor HTTP simulado (não uma GPU real) sempre que
+   possível — ver `tests/comfyui_mock_server.py` +
+   `tests/test_comfyui_provider.py` como referência: valida a lógica de
+   fila/poll/download/erro/timeout sem depender de hardware específico.
 
 ## Convenções
 

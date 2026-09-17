@@ -111,10 +111,18 @@ Fase 1 — apenas as interfaces/regras estão preparadas.
 - `ImageProvider` nunca lança exceção não tratada; sempre retorna um
   `ImageResult` estruturado, incluindo `MEDIA_PROVIDER_NOT_CONFIGURED`
   quando nenhum gerador está disponível.
-- Mídia gerada (quando implementada na Fase 2) passará por
+- Mídia gerada (Fase 2, `ComfyUIProvider`) passa por
   `post_generation_check()` antes de ser exposta na conversa; resultado
   `BLOCK` impede a exposição da mídia e não atualiza
-  `CharacterState.last_generated_media`.
+  `CharacterState.last_generated_media` nem persiste `MediaAsset`.
+- Imagens geradas ficam apenas em `generated/` no disco local (fora do
+  git, nunca enviadas a serviços externos). O caminho no disco nunca é
+  exposto ao cliente: `MediaAssetRead` (API) traz só metadata, e
+  `GET /media/{id}/file` é o único jeito de obter os bytes, resolvendo
+  `id -> arquivo` no servidor.
+- `ComfyUIProvider` nunca lança exceção em timeout, erro de execução ou
+  `CUDA OUT OF MEMORY` — sempre retorna `MediaStatus.ERROR` com mensagem
+  estruturada; a conversa continua normalmente.
 
 ## 7. O que NÃO fazer (regras do projeto)
 

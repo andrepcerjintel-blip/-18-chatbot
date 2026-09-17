@@ -24,6 +24,7 @@ from app.media.provider_base import ImageProvider
 from app.memory.manager import MemoryManager
 from app.models.character_state import CharacterState
 from app.models.conversation import Conversation
+from app.models.media import MediaAsset
 from app.models.message import Message
 from app.safety.engine import SafetyEngine
 from app.schemas.chat import ChatResponse
@@ -101,6 +102,7 @@ class ConversationEngine:
                     content=media_result.message,
                     intent=intent_result.intent.value,
                     safety_status=safety_result.decision.value,
+                    media_id=media_result.image_id if media_result.status == MediaStatus.SUCCESS else None,
                 )
             )
             self.db.commit()
@@ -217,10 +219,8 @@ class ConversationEngine:
                 message="Local video generation has not been configured yet.",
             )
 
-        prompt_hint = (
-            f"{conversation.character.name}, {state.outfit}, {state.location}, "
-            f"{state.time_of_day}, mood: {state.mood}, pose: {state.last_pose}"
-        )
+        character = conversation.character
+        prompt_hint = self._build_image_prompt(character, state)
         request = ImageRequest(
             character_id=conversation.character_id,
             conversation_id=conversation.id,
@@ -240,5 +240,37 @@ class ConversationEngine:
                 logger.warning("media_post_check_blocked conversation_id=%s", conversation.id)
                 return ImageResult(status=MediaStatus.BLOCKED, message="Generated media was blocked by safety checks.")
             state.last_generated_media = result.file_path
+            self.db.add(
+                MediaAsset(
+                    id=result.image_id,
+                    character_id=conversation.character_id,
+                    conversation_id=conversation.id,
+                    file_path=result.file_path,
+                    media_type="image",
+                    seed=str(result.metadata.get("seed", "")) or None,
+                    model=result.metadata.get("model"),
+                    workflow=result.metadata.get("workflow"),
+                    safety_status=post_check.decision.value,
+                    status=result.status.value,
+                )
+            )
 
         return result
+
+    @staticmethod
+    def _build_image_prompt(character, state: CharacterState) -> str:
+        """Monta um prompt descritivo a partir da ficha do personagem +
+        estado da conversa. Nunca inclui texto livre do usuario diretamente
+        -- apenas campos ja validados/persistidos de Character/CharacterState."""
+        parts = [
+            character.appearance,
+            f"{character.hair} hair" if character.hair else "",
+            f"{character.eyes} eyes" if character.eyes else "",
+            character.body_description,
+            state.outfit,
+            f"in {state.location}" if state.location else "",
+            state.time_of_day,
+            f"{state.mood} mood" if state.mood else "",
+            state.last_pose,
+        ]
+        return ", ".join(p.strip() for p in parts if p and p.strip())

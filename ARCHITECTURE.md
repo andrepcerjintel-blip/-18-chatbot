@@ -27,8 +27,9 @@ Conversation Engine (app.conversation.engine)
    │      indiscriminadamente
    │
    ├─▶ ImageProvider (app.media)                     [se IMAGE/VIDEO_REQUEST]
-   │      NullImageProvider (padrão) ou ComfyUIProvider (stub, consulta
-   │      HardwareProfile via app.hardware, nunca presume CUDA/NVIDIA)
+   │      NullImageProvider (sem GPU) ou ComfyUIProvider real (fila/poll/
+   │      download via HTTP no ComfyUI local; consulta HardwareProfile via
+   │      app.hardware, nunca presume CUDA/NVIDIA)
    │      nunca lança exceção; sempre retorna status estruturado
    │
    ├─▶ Post-generation Safety Check (app.safety.engine)
@@ -37,6 +38,12 @@ Conversation Engine (app.conversation.engine)
    ▼
 ChatResponse (schema Pydantic)  ──▶  Chat UI
 ```
+
+Em caso de sucesso na geração de imagem, um `MediaAsset` é persistido
+(metadata: seed, model, workflow, safety_status) e seu `id` é gravado em
+`Message.media_id`. O frontend busca os bytes da imagem via
+`GET /media/{id}/file` — nunca recebe o caminho no disco diretamente
+(`MediaAssetRead` expõe apenas metadata).
 
 ## Módulos e responsabilidades
 
@@ -53,7 +60,7 @@ ChatResponse (schema Pydantic)  ──▶  Chat UI
 | `app.memory.manager` | Short-term memory + resumo progressivo. |
 | `app.hardware` | `HardwareProfile` desacoplado de vendor (NVIDIA/AMD/Intel/CPU). |
 | `app.services.llm` | Abstração de LLM (`stub`, `anthropic`); desacoplada do resto do app. |
-| `app.media` | Abstração `ImageProvider` (`null`, `comfyui` stub); desacoplada do resto do app. |
+| `app.media` | Abstração `ImageProvider` (`null`, `comfyui` real); desacoplada do resto do app. |
 | `app.conversation.engine` | Orquestrador central do fluxo acima. |
 | `app.api` | Endpoints FastAPI (characters, conversations, chat, media, health, hardware). |
 
@@ -65,7 +72,7 @@ Conversation Engine ──▶ ImageProvider (interface abstrata)
                     ┌─────────┴─────────┐
                     ▼                   ▼
             NullImageProvider    ComfyUIProvider
-            (ativo por padrão)   (stub, HTTP p/ ComfyUI local)
+            (sem GPU/ComfyUI)    (HTTP real p/ ComfyUI local)
 ```
 
 Nenhum outro módulo (Conversation Engine, Safety Engine, Character Manager,

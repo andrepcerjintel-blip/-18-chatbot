@@ -72,41 +72,70 @@ lado a lado (sem remover o 3.14), criar o virtualenv do projeto, e
 instalar Git/Node.js caso ausentes. Depois, `scripts\start.bat` sempre usa
 esse virtualenv.
 
-## O que acontece enquanto a geração visual não está habilitada
+## Status: Fase 2 implementada (geração real via ComfyUI)
 
-- `MEDIA_PROVIDER=null` por padrão → `NullImageProvider` ativo.
-- Qualquer `IMAGE_REQUEST`/`VIDEO_REQUEST` é classificado normalmente,
-  passa pelo Safety Engine normalmente, e retorna:
-  ```json
-  {"status": "MEDIA_PROVIDER_NOT_CONFIGURED", "message": "..."}
-  ```
-  sem quebrar a conversa, sem exceção não tratada, sem alterar
-  `Character` indevidamente.
+O `ComfyUIProvider` (`backend/app/media/comfyui_provider.py`) agora
+implementa geração real (fila via `/prompt`, espera via `/history`,
+download via `/view`, tratamento de timeout/OOM/erro de execução — nunca
+lança exceção, sempre retorna `ImageResult` estruturado). Testado neste
+repositório contra um servidor ComfyUI simulado (`tests/test_comfyui_provider.py`
++ `tests/comfyui_mock_server.py`), já que o ambiente de desenvolvimento
+não tem a GPU real do usuário. **A validação com a GPU real (RTX 3050)
+acontece na máquina do usuário**, rodando:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\setup_comfyui.ps1
+scripts\start_comfyui.bat   # janela 1, deixar aberta
+scripts\start.bat           # janela 2 (detecta e aguarda o ComfyUI sozinho)
+```
+
+Enquanto isso não for rodado (`MEDIA_PROVIDER=null`, padrão de fábrica),
+`IMAGE_REQUEST`/`VIDEO_REQUEST` continuam sendo classificados e passando
+pelo Safety Engine normalmente, retornando
+`{"status": "MEDIA_PROVIDER_NOT_CONFIGURED", ...}` sem quebrar a conversa.
 
 ## Segunda auditoria — status das 15 decisões
 
-Hardware real agora conhecido (NVIDIA RTX 3050 Laptop, 4 GB VRAM). Status
-de cada decisão da Fase 2 — a maioria continua **deliberadamente adiada**
-até a implementação real do `ComfyUIProvider`, para evitar comprometer-se
-com parâmetros antes de testar progressivamente, como instruído:
+Hardware real conhecido (NVIDIA RTX 3050 Laptop, 4 GB VRAM). Prioridade
+explícita do usuário: **"funcionar hoje" > qualidade máxima**. Status de
+cada decisão:
 
 | # | Decisão | Status |
 |---|---|---|
-| 1 | Build do PyTorch | **Direção definida** (ver "PyTorch/CUDA" abaixo), instalação adiada para o início da Fase 2 |
+| 1 | Build do PyTorch | **Definido**: instalado pelo `scripts/setup_comfyui.ps1` dentro do venv próprio do ComfyUI, tentando `cu124` e depois `cu121` (fallback CPU-only se ambos falharem) |
 | 2 | Backend (CUDA) + compat. ComfyUI | **Definido**: CUDA via wheel PyTorch, sem Toolkit global |
-| 3 | Checkpoint visual | **Adiado** — candidatos listados abaixo para avaliação, nenhum baixado |
-| 4 | Resolução padrão | Adiado — testar progressivamente a partir de 512×512 |
-| 5 | Batch size | **Definido: 1** (fixo, dado 4 GB de VRAM) |
-| 6 | Precisão | **Direção definida: FP16** prioritário; BF16 não confirmado nesta GPU |
-| 7 | Attention backend | Adiado — avaliar SDPA (nativo do PyTorch) primeiro, xFormers só se necessário |
-| 8 | VAE | Adiado — usar VAE tiling desde o início por precaução de VRAM |
-| 9 | CPU/model offload | **Definido: necessário**, sequential offload como padrão inicial |
-| 10 | Outras otimizações de VRAM | Adiado — avaliar quantização apenas se offload não bastar |
-| 11 | Viabilidade SDXL | **Improvável como padrão**: checkpoints SDXL costumam exigir 6-8 GB+ para inferência confortável; considerar apenas variantes destiladas/turbo se testado e couber |
-| 12 | Viabilidade FLUX | **Não recomendado agora**: modelos FLUX (12B parâmetros) excedem em muito 4 GB VRAM, mesmo quantizados a probabilidade de inferência aceitável é baixa nesta GPU |
+| 3 | Checkpoint visual | **Definido**: Stable Diffusion 1.5 fp16 pruned-emaonly (`v1-5-pruned-emaonly-fp16.safetensors`, ~2.13 GB, CreativeML Open RAIL-M) — ver justificativa abaixo |
+| 4 | Resolução padrão | **Definido: 512×512** (nativo do SD1.5, seguro para 4 GB) — `COMFYUI_WIDTH`/`COMFYUI_HEIGHT` no `.env` |
+| 5 | Batch size | **Definido: 1**, fixado no código (`comfyui_workflow.py`), não configurável via `.env` |
+| 6 | Precisão | FP16 vem embutido no checkpoint escolhido; PyTorch usa autocast padrão do ComfyUI |
+| 7 | Attention backend | Usa o padrão do ComfyUI (SDPA/pytorch nativo); nada customizado |
+| 8 | VAE | VAE embutido no checkpoint (não separado); tiling não necessário em 512×512 |
+| 9 | CPU/model offload | **Definido**: `start_comfyui.bat` roda com a flag `--lowvram` do próprio ComfyUI |
+| 10 | Outras otimizações de VRAM | Não aplicadas ainda — `--lowvram` + 512×512 + batch=1 já é bem conservador; reavaliar apenas se houver OOM real |
+| 11 | Viabilidade SDXL | **Não usado como padrão** (mantém-se a análise anterior: exige 6-8 GB+) |
+| 12 | Viabilidade FLUX | **Não usado** (12B parâmetros, incompatível com 4 GB) |
 | 13 | IP-Adapter | Adiado para Fase 3 (consistência de personagem) |
 | 14 | ControlNet | Adiado, e mesmo na Fase 3 usar no máximo um por vez (RAM/VRAM limitadas) |
 | 15 | Vídeo local | Adiado para Fase 4; 4 GB VRAM é uma restrição severa para modelos de vídeo atuais |
+
+### Por que Stable Diffusion 1.5 fp16 pruned-emaonly
+
+- **Tamanho**: ~2,13 GB — a opção mais leve entre os candidatos avaliados.
+- **Origem**: `Comfy-Org/stable-diffusion-v1-5-archive` no Hugging Face
+  (mantido pela própria organização do ComfyUI).
+- **Licença**: CreativeML Open RAIL-M — permissiva, com restrições de uso
+  (não gerar conteúdo ilegal), compatível com o uso local/privado deste
+  projeto.
+- **Estilo**: modelo base geral, capaz de saídas realistas e ilustrativas
+  dependendo do prompt — não especializado.
+- **Compatibilidade**: workflow txt2img mínimo padrão do ComfyUI
+  (`CheckpointLoaderSimple` → `KSampler` → `VAEDecode`), sem nós extras.
+- Escolhido automaticamente pela regra de fallback combinada com a
+  prioridade explícita do usuário ("funcionar hoje" > qualidade máxima) —
+  não houve resposta bloqueando a decisão, e esta é a opção mais leve,
+  estável e amplamente compatível para validar o pipeline. SDXL/FLUX e
+  variantes turbo/destiladas ficam para avaliação futura, uma vez que o
+  pipeline básico esteja confirmado funcionando.
 
 ## Restrições de VRAM (4 GB) — regras vinculantes para a Fase 2
 
@@ -165,25 +194,22 @@ Quando a Fase 2 (ComfyUIProvider real) começar:
    ```
 5. Só então habilitar `MEDIA_PROVIDER=comfyui` de fato.
 
-## Candidatos de checkpoint visual (avaliação futura, nada baixado)
+## Checkpoint escolhido vs. alternativas futuras
 
-Nenhum destes foi baixado ou selecionado definitivamente. Antes de
-baixar qualquer um, este documento será atualizado com: nome exato,
-tamanho, finalidade, licença, compatibilidade e espaço restante
-esperado, para aprovação explícita — conforme a regra de armazenamento
-abaixo. Lista inicial de candidatos plausíveis para 4 GB VRAM (a
-confirmar com testes reais, não apenas por qualidade visual):
+O checkpoint ativo é o SD 1.5 fp16 descrito acima, baixado por
+`scripts/setup_comfyui.ps1` para `ComfyUI/models/checkpoints/`. Outras
+opções ficam para quando o pipeline básico estiver validado e houver
+motivo concreto para trocar (nenhuma delas foi baixada):
 
 | Candidato | VRAM aproximada | Observação |
 |---|---|---|
-| Stable Diffusion 1.5 (fp16) | ~2-3 GB | Mais leve, maior compatibilidade ComfyUI, ecossistema maduro |
-| SD Turbo / LCM-LoRA sobre SD 1.5 | ~2-3 GB | Inferência mais rápida (menos steps), útil dado hardware limitado |
-| SDXL fp16 | ~6-8 GB+ | Provavelmente inviável sem offload agressivo; avaliar apenas se necessário |
-| SDXL Turbo/Lightning (destilado) | ~5-6 GB | Ainda arriscado para 4 GB; testar com offload antes de descartar |
+| SD Turbo / LCM-LoRA sobre SD 1.5 | ~2-3 GB | Inferência mais rápida (1-4 steps); avaliar depois de confirmar o pipeline básico |
+| SDXL fp16 | ~6-8 GB+ | Provavelmente inviável sem offload agressivo nesta GPU |
+| SDXL Turbo/Lightning (destilado) | ~5-6 GB | Ainda arriscado para 4 GB; só testar com `--lowvram`/offload se houver necessidade real |
 
-Critérios de avaliação final (nenhum aplicado ainda): VRAM necessária,
-RAM necessária, velocidade, arquitetura, licença, suporte ComfyUI,
-compatibilidade PyTorch, capacidade de consistência de personagem.
+Antes de baixar qualquer um destes, seguir a mesma regra de
+"Armazenamento" abaixo (nome, tamanho, finalidade, licença,
+compatibilidade, espaço restante esperado, aprovação explícita).
 
 ## Armazenamento
 

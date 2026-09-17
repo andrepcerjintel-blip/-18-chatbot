@@ -28,6 +28,10 @@ class Message(Base):
     content: Mapped[str] = mapped_column(Text, nullable=False)
     intent: Mapped[str] = mapped_column(String(30), nullable=True)
     safety_status: Mapped[str] = mapped_column(String(20), nullable=True)
+    # Preenchido quando a mensagem acompanha uma imagem gerada com sucesso
+    # (aponta para MediaAsset.id). Permite ao frontend renderizar a imagem
+    # tanto na resposta imediata quanto ao recarregar o historico.
+    media_id: Mapped[str] = mapped_column(String(36), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
     conversation: Mapped["Conversation"] = relationship(back_populates="messages")

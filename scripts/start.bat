@@ -3,16 +3,44 @@ REM =====================================================================
 REM start.bat - inicia o aplicativo localmente no Windows.
 REM
 REM NAO instala drivers NVIDIA, CUDA Toolkit ou qualquer software critico
-REM do sistema. Apenas ativa o ambiente virtual Python ja existente,
-REM inicia backend e frontend, verifica o Media Provider/ComfyUI e abre
-REM o navegador em localhost.
+REM do sistema. Ativa o ambiente virtual Python ja existente, inicia o
+REM ComfyUI (se configurado via scripts\setup_comfyui.ps1), o backend e o
+REM frontend, e abre o navegador em localhost.
 REM =====================================================================
 
-setlocal
+setlocal EnableDelayedExpansion
 
 set ROOT=%~dp0..
 set BACKEND=%ROOT%\backend
 set FRONTEND=%ROOT%\frontend
+set COMFYDIR=%ROOT%\ComfyUI
+
+if exist "%COMFYDIR%\venv\Scripts\activate.bat" (
+    echo [0/6] Iniciando ComfyUI ^(deteccao automatica^)...
+    start "companion-comfyui" cmd /k "%~dp0start_comfyui.bat"
+    echo Aguardando ComfyUI responder em http://127.0.0.1:8188 ...
+    set COMFY_READY=0
+    for /l %%i in (1,1,30) do (
+        curl -s -o nul -w "%%{http_code}" http://127.0.0.1:8188/system_stats > "%TEMP%\comfy_status.txt" 2>nul
+        set /p COMFY_STATUS=<"%TEMP%\comfy_status.txt"
+        if "!COMFY_STATUS!"=="200" (
+            set COMFY_READY=1
+            goto :comfy_ready
+        )
+        timeout /t 2 /nobreak >nul
+    )
+    :comfy_ready
+    if "!COMFY_READY!"=="1" (
+        echo ComfyUI pronto.
+    ) else (
+        echo [aviso] ComfyUI ainda nao respondeu apos ~60s ^(pode estar carregando
+        echo o modelo pela primeira vez^). O app continua normalmente -- pedidos de
+        echo imagem podem falhar ate o ComfyUI terminar de subir.
+    )
+) else (
+    echo [0/6] ComfyUI nao configurado ^(rode scripts\setup_comfyui.ps1 para habilitar
+    echo geracao real de imagem^). Continuando em modo textual/NullImageProvider.
+)
 
 echo [1/6] Verificando ambiente virtual Python (3.11.x especificamente)...
 if not exist "%BACKEND%\.venv\Scripts\activate.bat" (
