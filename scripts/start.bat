@@ -55,14 +55,12 @@ echo geracao real de imagem. Continuando em modo textual/NullImageProvider.
 
 REM --- 1/6: virtualenv do backend (Python 3.11 especificamente) ----------
 echo [1/6] Verificando ambiente virtual Python (3.11.x especificamente)...
-if exist "%BACKEND%\.venv\Scripts\activate.bat" goto :venv_ready
+if exist "%BACKEND%\.venv\Scripts\activate.bat" goto :venv_install
 
 echo Ambiente virtual nao encontrado. Criando com Python 3.11...
 py -3.11 -m venv "%BACKEND%\.venv"
 if errorlevel 1 goto :python311_missing
-call "%BACKEND%\.venv\Scripts\activate.bat"
-pip install -r "%BACKEND%\requirements.txt"
-goto :venv_done
+goto :venv_install
 
 :python311_missing
 echo.
@@ -73,8 +71,14 @@ echo     powershell -ExecutionPolicy Bypass -File scripts\setup_windows_env.ps1
 echo para instalar o Python 3.11 lado a lado, sem remover outras versoes.
 exit /b 1
 
-:venv_ready
+:venv_install
 call "%BACKEND%\.venv\Scripts\activate.bat"
+REM Sempre reconfirma as dependencias (rapido/idempotente se ja estiverem
+REM instaladas) em vez de so instalar na primeira criacao do venv -- assim
+REM um .venv criado antes mas nunca populado (ex.: instalacao anterior
+REM interrompida) nao fica incompleto para sempre. "python -m pip", nunca
+REM pip.exe diretamente (ver setup_windows_env.ps1 para o motivo).
+python -m pip install -q -r "%BACKEND%\requirements.txt"
 
 :venv_done
 
