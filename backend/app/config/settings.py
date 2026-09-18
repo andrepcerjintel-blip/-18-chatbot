@@ -36,13 +36,13 @@ class Settings(BaseSettings):
     llm_api_key: str = Field(default="", alias="LLM_API_KEY")
     llm_model: str = Field(default="", alias="LLM_MODEL")
 
-    # LLM local via llama.cpp (100% offline, sem chave de API). CPU por
-    # padrao (n_gpu_layers=0) para nao disputar VRAM com o ComfyUI na
-    # mesma GPU de 4 GB -- ver HARDWARE.md.
+    # LLM local via gpt4all (motor compativel com llama.cpp), 100% offline,
+    # sem chave de API. CPU por padrao (LOCAL_LLM_DEVICE=cpu) para nao
+    # disputar VRAM com o ComfyUI na mesma GPU de 4 GB -- ver HARDWARE.md.
     local_llm_model_path: str = Field(default="", alias="LOCAL_LLM_MODEL_PATH")
     local_llm_ctx_size: int = Field(default=4096, alias="LOCAL_LLM_CTX_SIZE")
     local_llm_threads: int = Field(default=0, alias="LOCAL_LLM_THREADS")
-    local_llm_gpu_layers: int = Field(default=0, alias="LOCAL_LLM_GPU_LAYERS")
+    local_llm_device: str = Field(default="cpu", alias="LOCAL_LLM_DEVICE")
     local_llm_max_tokens: int = Field(default=300, alias="LOCAL_LLM_MAX_TOKENS")
     local_llm_temperature: float = Field(default=0.8, alias="LOCAL_LLM_TEMPERATURE")
 

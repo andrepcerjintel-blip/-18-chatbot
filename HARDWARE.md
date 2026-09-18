@@ -242,9 +242,16 @@ vinculantes para a Fase 2:
 O `StubLLMProvider` (respostas fixas/eco) era só um placeholder para o app
 funcionar sem dependências durante a Fase 1/2. Para a conversa realmente
 interpretar a personagem, foi adicionado `LocalLLMProvider`
-(`app/services/llm/local_provider.py`), via `llama-cpp-python`:
+(`app/services/llm/local_provider.py`), via `gpt4all` (motor compatível
+com llama.cpp):
 
-- **CPU por padrão** (`LOCAL_LLM_GPU_LAYERS=0`): a GPU de 4 GB fica
+- **`gpt4all`, não `llama-cpp-python`**: a primeira tentativa usou
+  `llama-cpp-python`, mas em teste real no Windows o `pip install`
+  tentou compilar do zero (exige CMake + Visual Studio Build Tools, que
+  a máquina não tinha) porque a versão exata pedida não tinha wheel
+  pré-compilada publicada pelo mantenedor. `gpt4all` publica wheel
+  pré-compilada padrão no PyPI, sem essa fragilidade.
+- **CPU por padrão** (`LOCAL_LLM_DEVICE=cpu`): a GPU de 4 GB fica
   reservada inteiramente para o ComfyUI. Rodar o LLM na mesma GPU
   economizaria tempo de resposta, mas arrisca falta de VRAM sempre que
   texto e imagem forem usados ao mesmo tempo — prioridade "funcionar
@@ -259,8 +266,8 @@ interpretar a personagem, foi adicionado `LocalLLMProvider`
   apenas atualizando `LOCAL_LLM_MODEL_PATH` no `.env` — a arquitetura não
   depende do modelo específico.
 - Instalado via `scripts/setup_local_llm.ps1`, dentro do `backend\.venv`
-  já existente (sem venv separado — `llama-cpp-python` não tem
-  dependências pesadas conflitantes).
+  já existente (sem venv separado — `gpt4all` não tem dependências
+  pesadas conflitantes).
 
 ## Regra permanente
 

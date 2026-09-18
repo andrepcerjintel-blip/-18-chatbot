@@ -1,19 +1,23 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Instala e configura um LLM local (llama.cpp) para a conversa ter
-    personalidade real -- sem filtro de conteudo, 100% offline, sem chave
-    de API.
+    Instala e configura um LLM local (gpt4all, motor compativel com
+    llama.cpp) para a conversa ter personalidade real -- sem filtro de
+    conteudo, 100% offline, sem chave de API.
 
 .DESCRIPTION
-    - Instala llama-cpp-python (wheel pre-compilada, CPU-only) dentro do
-      venv ja existente do backend (backend\.venv) -- nao precisa de venv
-      separado nem de compilador C/C++ na maioria dos casos.
+    - Instala o pacote "gpt4all" (wheel pre-compilada oficial do PyPI,
+      sem precisar de compilador C/C++) dentro do venv ja existente do
+      backend (backend\.venv) -- sem venv separado.
+      Preferido a llama-cpp-python porque este ultimo so tem wheel
+      pronta para versoes exatas publicadas pelo mantenedor; fora dessas
+      versoes, o pip tenta compilar do zero (CMake + Visual Studio Build
+      Tools), o que falhou em teste real nesta maquina.
     - Baixa UM modelo GGUF (Mistral-7B-Instruct-v0.2, quantizado Q4_K_M,
       ~4.4 GB, licenca Apache 2.0 -- sem clausula de uso restringindo
       conteudo adulto, ao contrario da licenca do Llama) para
       <raiz do projeto>\models\llm\.
-    - Roda no CPU por padrao (LOCAL_LLM_GPU_LAYERS=0): a GPU de 4 GB fica
+    - Roda no CPU por padrao (LOCAL_LLM_DEVICE=cpu): a GPU de 4 GB fica
       inteira disponivel para o ComfyUI, evitando falta de VRAM quando os
       dois rodam ao mesmo tempo -- prioridade "funcionar hoje" sobre
       "resposta mais rapida", conforme decidido para este projeto.
@@ -79,7 +83,7 @@ if (-not (Test-Path $BackendPython)) {
 }
 Write-Host "OK." -ForegroundColor Green
 
-Write-Host "`n=== 1/3: llama-cpp-python (CPU, dentro do backend\.venv) ===" -ForegroundColor Cyan
+Write-Host "`n=== 1/3: gpt4all (CPU, dentro do backend\.venv) ===" -ForegroundColor Cyan
 Write-Host "Rodando no CPU por padrao -- a GPU de 4 GB fica reservada para o" -ForegroundColor Yellow
 Write-Host "ComfyUI, evitando falta de VRAM quando texto e imagem sao usados" -ForegroundColor Yellow
 Write-Host "juntos (ver HARDWARE.md)." -ForegroundColor Yellow
@@ -88,29 +92,16 @@ Write-Host "juntos (ver HARDWARE.md)." -ForegroundColor Yellow
 # obsoleto se a pasta do projeto for movida).
 & $BackendPython -m pip install --upgrade pip
 
-# "pip install llama-cpp-python" sem mais nada tenta COMPILAR do zero se
-# nao achar uma wheel pre-compilada exata para a versao do PyPI -- e isso
-# exige CMake + compilador C/C++ (Visual Studio Build Tools), que a
-# maioria das maquinas Windows nao tem instalado. O mantenedor do projeto
-# publica wheels pre-compiladas prontas (sem compilar nada) num indice
-# separado -- usamos essa rota primeiro, com uma versao fixa conhecida
-# por ter wheel publicada, e so caimos para compilacao se isso falhar.
-Write-Host "Tentando instalar wheel pre-compilada (sem precisar de compilador C++)..."
-& $BackendPython -m pip install llama-cpp-python==0.3.4 --prefer-binary --only-binary=llama-cpp-python --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
-$prebuiltOk = ($LASTEXITCODE -eq 0)
-
-if (-not $prebuiltOk) {
-    Write-Host "[AVISO] Wheel pre-compilada nao disponivel para esta combinacao de" -ForegroundColor Yellow
-    Write-Host "Python/Windows. Tentando compilar do zero (precisa de compilador C++)..." -ForegroundColor Yellow
-    & $BackendPython -m pip install llama-cpp-python
-}
+# gpt4all publica wheel pre-compilada padrao no PyPI para Windows -- ao
+# contrario de llama-cpp-python, que so tem wheel pronta para versoes
+# exatas publicadas pelo mantenedor num indice separado; fora dessas
+# versoes, pip tenta compilar do zero (CMake + Visual Studio Build
+# Tools), o que falhou repetidamente em teste real nesta maquina.
+& $BackendPython -m pip install gpt4all
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "[ERRO] Falha ao instalar llama-cpp-python mesmo compilando do zero." -ForegroundColor Red
-    Write-Host "Isso normalmente significa que falta um compilador C/C++. Instale o" -ForegroundColor Red
-    Write-Host "'Build Tools for Visual Studio' (componente 'Desktop development with" -ForegroundColor Red
-    Write-Host "C++') em https://visualstudio.microsoft.com/visual-cpp-build-tools/" -ForegroundColor Red
-    Write-Host "e rode este script de novo." -ForegroundColor Red
+    Write-Host "[ERRO] Falha ao instalar gpt4all." -ForegroundColor Red
+    Write-Host "Verifique sua conexao com a internet e rode este script de novo." -ForegroundColor Red
     exit 1
 }
 
@@ -179,9 +170,9 @@ if ($needsDownload) {
 }
 
 Write-Host "`n=== 3/3: Validacao + configuracao do projeto ===" -ForegroundColor Cyan
-& $BackendPython -c "from llama_cpp import Llama; print('llama_cpp OK')"
+& $BackendPython -c "from gpt4all import GPT4All; print('gpt4all OK')"
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "[AVISO] Nao foi possivel importar llama_cpp apos a instalacao." -ForegroundColor Yellow
+    Write-Host "[AVISO] Nao foi possivel importar gpt4all apos a instalacao." -ForegroundColor Yellow
 }
 
 Set-EnvValue -Path $EnvFile -Key "LLM_PROVIDER" -Value "local"
