@@ -256,18 +256,24 @@ com llama.cpp):
   economizaria tempo de resposta, mas arrisca falta de VRAM sempre que
   texto e imagem forem usados ao mesmo tempo — prioridade "funcionar
   hoje" sobre "resposta mais rápida" (decisão já usada na Fase 2).
-- **Modelo padrão**: `mistral-7b-instruct-v0.2.Q4_K_M.gguf`
-  (TheBloke/Mistral-7B-Instruct-v0.2-GGUF, ~4.4 GB, licença Apache 2.0 —
-  sem cláusula de uso restringindo conteúdo adulto, ao contrário da AUP
-  da Meta/Llama). Não é um finetune especializado em roleplay "sem
-  filtro"; foi escolhido por ser o ponto de partida mais confiável/
-  verificável para validar o pipeline de conversa hoje. Pode ser trocado
-  depois por qualquer outro `.gguf` (ex.: um finetune de roleplay)
-  apenas atualizando `LOCAL_LLM_MODEL_PATH` no `.env` — a arquitetura não
-  depende do modelo específico.
+- **Modelo padrão**: `mistral-7b-openorca.gguf2.Q4_0.gguf` (Mistral 7B
+  OpenOrca, ~4.1 GB, ~8 GB de RAM recomendada, licença Apache 2.0 — sem
+  cláusula de uso restringindo conteúdo adulto, ao contrário da AUP da
+  Meta/Llama), baixado do **catálogo oficial do próprio gpt4all** (não
+  de um `.gguf` externo). Testado uma primeira vez com um `.gguf` baixado
+  manualmente do Hugging Face (Mistral-7B-Instruct-v0.2): carregava sem
+  erro, mas travava com `OSError: access violation` (crash nativo, ponteiro
+  nulo) ao tentar gerar texto de verdade — o motor nativo do gpt4all só
+  garante compatibilidade total com os modelos do próprio catálogo, não
+  com qualquer `.gguf` de terceiros. Não é um finetune especializado em
+  roleplay "sem filtro"; foi escolhido por ser o ponto de partida mais
+  confiável/verificável para validar o pipeline de conversa hoje. Pode
+  ser trocado depois por outro modelo do catálogo do gpt4all apenas
+  mudando o nome em `scripts/setup_local_llm.ps1` e reexecutando.
 - Instalado via `scripts/setup_local_llm.ps1`, dentro do `backend\.venv`
   já existente (sem venv separado — `gpt4all` não tem dependências
-  pesadas conflitantes).
+  pesadas conflitantes). O download do modelo é feito pelo próprio
+  `gpt4all` (com verificação de integridade), não por download manual.
 
 ## Regra permanente
 
