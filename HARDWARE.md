@@ -237,6 +237,31 @@ vinculantes para a Fase 2:
 - manter modelos organizados em `models/`;
 - não duplicar checkpoints desnecessariamente.
 
+## Fase 3: LLM local (conversa com personalidade real)
+
+O `StubLLMProvider` (respostas fixas/eco) era só um placeholder para o app
+funcionar sem dependências durante a Fase 1/2. Para a conversa realmente
+interpretar a personagem, foi adicionado `LocalLLMProvider`
+(`app/services/llm/local_provider.py`), via `llama-cpp-python`:
+
+- **CPU por padrão** (`LOCAL_LLM_GPU_LAYERS=0`): a GPU de 4 GB fica
+  reservada inteiramente para o ComfyUI. Rodar o LLM na mesma GPU
+  economizaria tempo de resposta, mas arrisca falta de VRAM sempre que
+  texto e imagem forem usados ao mesmo tempo — prioridade "funcionar
+  hoje" sobre "resposta mais rápida" (decisão já usada na Fase 2).
+- **Modelo padrão**: `mistral-7b-instruct-v0.2.Q4_K_M.gguf`
+  (TheBloke/Mistral-7B-Instruct-v0.2-GGUF, ~4.4 GB, licença Apache 2.0 —
+  sem cláusula de uso restringindo conteúdo adulto, ao contrário da AUP
+  da Meta/Llama). Não é um finetune especializado em roleplay "sem
+  filtro"; foi escolhido por ser o ponto de partida mais confiável/
+  verificável para validar o pipeline de conversa hoje. Pode ser trocado
+  depois por qualquer outro `.gguf` (ex.: um finetune de roleplay)
+  apenas atualizando `LOCAL_LLM_MODEL_PATH` no `.env` — a arquitetura não
+  depende do modelo específico.
+- Instalado via `scripts/setup_local_llm.ps1`, dentro do `backend\.venv`
+  já existente (sem venv separado — `llama-cpp-python` não tem
+  dependências pesadas conflitantes).
+
 ## Regra permanente
 
 Nunca escolher checkpoint, resolução, batch size, precisão, quantização,

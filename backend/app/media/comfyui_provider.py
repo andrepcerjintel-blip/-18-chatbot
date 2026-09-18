@@ -34,7 +34,8 @@ from app.schemas.media import ImageRequest, ImageResult, MediaStatus, ProviderHe
 
 _DEFAULT_NEGATIVE_PROMPT = (
     "lowres, worst quality, low quality, bad anatomy, extra limbs, deformed, "
-    "watermark, text, signature, disfigured"
+    "watermark, text, signature, disfigured, empty room, no humans, no people, "
+    "scenery only, architecture only, furniture only"
 )
 _POLL_INTERVAL_SECONDS = 1.0
 

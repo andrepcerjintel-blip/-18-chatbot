@@ -94,7 +94,7 @@ class ConversationEngine:
             )
 
         if intent_result.intent in (IntentType.IMAGE_REQUEST, IntentType.VIDEO_REQUEST):
-            media_result = self._handle_media_request(conversation, state, intent_result.intent)
+            media_result = self._handle_media_request(conversation, state, intent_result.intent, user_text)
             self.db.add(
                 Message(
                     conversation_id=conversation.id,
@@ -209,7 +209,9 @@ class ConversationEngine:
             logger.exception("llm_provider_generate_reply_exception")
             return "Desculpa, tive um problema para responder agora. Pode tentar novamente?"
 
-    def _handle_media_request(self, conversation: Conversation, state: CharacterState, intent: IntentType):
+    def _handle_media_request(
+        self, conversation: Conversation, state: CharacterState, intent: IntentType, user_text: str
+    ):
         from app.schemas.media import ImageResult
 
         if intent == IntentType.VIDEO_REQUEST:
@@ -220,7 +222,7 @@ class ConversationEngine:
             )
 
         character = conversation.character
-        prompt_hint = self._build_image_prompt(character, state)
+        prompt_hint = self._build_image_prompt(character, state, user_text)
         request = ImageRequest(
             character_id=conversation.character_id,
             conversation_id=conversation.id,
@@ -257,12 +259,21 @@ class ConversationEngine:
 
         return result
 
-    @staticmethod
-    def _build_image_prompt(character, state: CharacterState) -> str:
-        """Monta um prompt descritivo a partir da ficha do personagem +
-        estado da conversa. Nunca inclui texto livre do usuario diretamente
-        -- apenas campos ja validados/persistidos de Character/CharacterState."""
+    _SUBJECT_TAG_BY_GENDER = {"female": "1woman, solo", "male": "1man, solo"}
+
+    @classmethod
+    def _build_image_prompt(cls, character, state: CharacterState, user_text: str) -> str:
+        """Monta um prompt descritivo a partir da ficha do personagem, do
+        estado da conversa, e do pedido especifico desta mensagem.
+
+        user_text ja passou pelo SafetyEngine.pre_generation_check antes
+        deste ponto (handle_message roda a checagem para toda mensagem,
+        independente do intent) -- sem isso, o texto do usuario nunca era
+        incluido no prompt de imagem, e o modelo gerava cenarios genericos
+        (ex.: um quarto vazio) em vez do que a pessoa realmente pediu."""
+        subject_tag = cls._SUBJECT_TAG_BY_GENDER.get(character.gender.lower(), "1person, solo")
         parts = [
+            subject_tag,
             character.appearance,
             f"{character.hair} hair" if character.hair else "",
             f"{character.eyes} eyes" if character.eyes else "",
@@ -272,5 +283,7 @@ class ConversationEngine:
             state.time_of_day,
             f"{state.mood} mood" if state.mood else "",
             state.last_pose,
+            "portrait, looking at viewer",
+            user_text.strip()[:200],
         ]
         return ", ".join(p.strip() for p in parts if p and p.strip())

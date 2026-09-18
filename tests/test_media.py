@@ -39,6 +39,22 @@ def test_image_request_with_null_provider_returns_not_configured(db_session):
     assert follow_up.intent == IntentType.CHAT
 
 
+def test_build_image_prompt_includes_user_request_and_subject_tag(db_session):
+    manager = CharacterManager(db_session)
+    character = manager.create(CharacterCreate(name="Luna", age=24, gender="female"))
+    conversation = Conversation(character_id=character.id)
+    db_session.add(conversation)
+    db_session.flush()
+    state = CharacterState(conversation_id=conversation.id)
+    db_session.add(state)
+    db_session.commit()
+
+    prompt = ConversationEngine._build_image_prompt(character, state, "manda uma foto só de calcinha")
+
+    assert "1woman, solo" in prompt
+    assert "calcinha" in prompt
+
+
 def test_unsafe_image_request_is_blocked_before_provider_call(db_session):
     conversation = _make_conversation(db_session)
     engine = ConversationEngine(

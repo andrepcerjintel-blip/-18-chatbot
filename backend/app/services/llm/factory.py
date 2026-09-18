@@ -19,6 +19,12 @@ def get_llm_provider() -> LLMProvider:
         logger.info("provider_status llm_provider=anthropic")
         return AnthropicProvider()
 
+    if provider_name == "local":
+        from app.services.llm.local_provider import LocalLLMProvider
+
+        logger.info("provider_status llm_provider=local")
+        return LocalLLMProvider()
+
     if provider_name not in ("", "stub"):
         logger.warning("provider_status unknown_or_unconfigured_llm_provider=%s falling_back=stub", provider_name)
     logger.info("provider_status llm_provider=stub")
