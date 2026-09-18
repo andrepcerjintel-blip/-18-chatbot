@@ -87,11 +87,30 @@ Write-Host "juntos (ver HARDWARE.md)." -ForegroundColor Yellow
 # em setup_comfyui.ps1/setup_windows_env.ps1 (launcher com caminho
 # obsoleto se a pasta do projeto for movida).
 & $BackendPython -m pip install --upgrade pip
-& $BackendPython -m pip install llama-cpp-python
+
+# "pip install llama-cpp-python" sem mais nada tenta COMPILAR do zero se
+# nao achar uma wheel pre-compilada exata para a versao do PyPI -- e isso
+# exige CMake + compilador C/C++ (Visual Studio Build Tools), que a
+# maioria das maquinas Windows nao tem instalado. O mantenedor do projeto
+# publica wheels pre-compiladas prontas (sem compilar nada) num indice
+# separado -- usamos essa rota primeiro, com uma versao fixa conhecida
+# por ter wheel publicada, e so caimos para compilacao se isso falhar.
+Write-Host "Tentando instalar wheel pre-compilada (sem precisar de compilador C++)..."
+& $BackendPython -m pip install llama-cpp-python==0.3.4 --prefer-binary --only-binary=llama-cpp-python --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+$prebuiltOk = ($LASTEXITCODE -eq 0)
+
+if (-not $prebuiltOk) {
+    Write-Host "[AVISO] Wheel pre-compilada nao disponivel para esta combinacao de" -ForegroundColor Yellow
+    Write-Host "Python/Windows. Tentando compilar do zero (precisa de compilador C++)..." -ForegroundColor Yellow
+    & $BackendPython -m pip install llama-cpp-python
+}
+
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "[ERRO] Falha ao instalar llama-cpp-python. Se o erro mencionar um" -ForegroundColor Red
-    Write-Host "compilador C/C++ ausente, instale o 'Build Tools for Visual Studio'" -ForegroundColor Red
-    Write-Host "(componente 'Desktop development with C++') e rode este script de novo." -ForegroundColor Red
+    Write-Host "[ERRO] Falha ao instalar llama-cpp-python mesmo compilando do zero." -ForegroundColor Red
+    Write-Host "Isso normalmente significa que falta um compilador C/C++. Instale o" -ForegroundColor Red
+    Write-Host "'Build Tools for Visual Studio' (componente 'Desktop development with" -ForegroundColor Red
+    Write-Host "C++') em https://visualstudio.microsoft.com/visual-cpp-build-tools/" -ForegroundColor Red
+    Write-Host "e rode este script de novo." -ForegroundColor Red
     exit 1
 }
 
