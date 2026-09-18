@@ -40,10 +40,15 @@ class Settings(BaseSettings):
     # sem chave de API. CPU por padrao (LOCAL_LLM_DEVICE=cpu) para nao
     # disputar VRAM com o ComfyUI na mesma GPU de 4 GB -- ver HARDWARE.md.
     local_llm_model_path: str = Field(default="", alias="LOCAL_LLM_MODEL_PATH")
-    local_llm_ctx_size: int = Field(default=4096, alias="LOCAL_LLM_CTX_SIZE")
+    # ctx/max_tokens conservadores de proposito: geracao de texto num LLM
+    # de 7B rodando so no CPU (sem GPU, ver LOCAL_LLM_DEVICE abaixo) e
+    # sensivel ao tamanho do prompt + numero de tokens gerados -- valores
+    # menores cortam bastante o tempo de resposta, ao custo de respostas
+    # mais curtas e um pouco menos de memoria de conversa por chamada.
+    local_llm_ctx_size: int = Field(default=2048, alias="LOCAL_LLM_CTX_SIZE")
     local_llm_threads: int = Field(default=0, alias="LOCAL_LLM_THREADS")
     local_llm_device: str = Field(default="cpu", alias="LOCAL_LLM_DEVICE")
-    local_llm_max_tokens: int = Field(default=300, alias="LOCAL_LLM_MAX_TOKENS")
+    local_llm_max_tokens: int = Field(default=150, alias="LOCAL_LLM_MAX_TOKENS")
     local_llm_temperature: float = Field(default=0.8, alias="LOCAL_LLM_TEMPERATURE")
 
     gpu_vendor: str = Field(default="UNKNOWN", alias="GPU_VENDOR")

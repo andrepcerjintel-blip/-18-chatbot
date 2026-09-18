@@ -16,7 +16,11 @@ from sqlalchemy.orm import Session
 from app.models.character_state import CharacterState
 from app.models.message import Message
 
-SHORT_TERM_WINDOW = 10
+# Reduzido de 10 para 6: cada mensagem extra no contexto aumenta o
+# prompt reenviado ao LLM a cada turno, e no LocalLLMProvider (CPU, sem
+# GPU) isso pesa diretamente no tempo de resposta -- ver settings.py
+# local_llm_ctx_size/local_llm_max_tokens para o mesmo ajuste.
+SHORT_TERM_WINDOW = 6
 SUMMARY_TRIGGER_EVERY = 12
 SUMMARY_MAX_CHARS = 1200
 
